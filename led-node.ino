@@ -44,7 +44,13 @@ struct create_topic
   Topic t;
 };
 
-struct subscribe_topic
+struct subscribe_topic_req
+{
+  Topic t;
+  int nid;
+};
+
+struct subscribe_topic_res
 {
   Topic t;
   int nid;
@@ -91,6 +97,8 @@ int nodeMode=0;
 
 topiclinkedlist *subscribe_list,*publish_list;  // Lists for subscribe & publish topic
 
+subscribe_list=NULL;
+publish_list=NULL;
 
 uint64_t rPipe=0xAABBCC0011LL; //Address for the reading pipe
 uint64_t wPipe; //Address of writing pipe
@@ -143,7 +151,12 @@ void loop(){
     }
   }
   else{
+    if(subscribe_list==NULL){
 
+    }
+    if(publish_list==NULL){
+
+    }
   }
   delay(500);
 }
