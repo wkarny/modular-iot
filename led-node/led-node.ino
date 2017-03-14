@@ -12,6 +12,8 @@
 
 **/
 
+enum message_type { ADD_REQ, ATH_REQ, ATH_RES };
+enum sensor_type {LED_ACTUATOR, TEMP_SENSOR, POWER_SWITCH_ACTUATOR};
 
 struct add_node
 {
@@ -21,8 +23,8 @@ struct add_node
 
 struct attach_request
 {
-  uint64_t rPipe;
-  uint64_t wPipe;
+  uint64_t rpipe;
+  uint64_t wpipe;
   int nid;
 };
 
@@ -35,7 +37,7 @@ struct attach_respond
 typedef struct 
 {
   int tid;
-  enum type {LED_ACTUATOR, TEMP_SENSOR, POWER_SWITCH_ACTUATOR};
+  enum sensor_type type ;
   char name[20];
 } Topic;
 
@@ -77,11 +79,11 @@ struct topic_update_res
 
 typedef struct message_t
 {
-  enum { ADD_REQ, ATH_REQ, ATH_RES,  } type;
+  enum message_type type;
   union {
-    struct add_node r;
-    struct attach_request r;
-    struct attach_respond r;
+    struct add_node add_req;
+    struct attach_request ath_req;
+    struct attach_respond ath_res;
 
   } data;
 } message;
@@ -95,11 +97,10 @@ struct topiclinkedlist
 
 int nodeMode=0;
 
-topiclinkedlist *subscribe_list,*publish_list;  // Lists for subscribe & publish topic
+struct topiclinkedlist *subscribe_list=NULL,*publish_list=NULL;  
+// Lists for subscribe & publish topic
 
-subscribe_list=NULL;
-publish_list=NULL;
-
+int NodeID=0x00AA;
 uint64_t rPipe=0xAABBCC0011LL; //Address for the reading pipe
 uint64_t wPipe; //Address of writing pipe
 
@@ -114,7 +115,7 @@ void setup(){
   if(flag=='Y'){
     Serial.println("Flag = Y");
     nodeMode=1;
-    eeAddress=sizeof(char);
+    //eeAddress=sizeof(char);
     EEPROM.get(P_ADDRESS,wPipe);
     Serial.println("Got wPipe");
     radio.openReadingPipe(1,rPipe);
@@ -132,22 +133,26 @@ void loop(){
   if(nodeMode==0){
     Serial.println("Waiting for Connection");
     if(radio.available()){
-      char c='c';
-      radio.read(&wPipe,sizeof(wPipe));
-      Serial.println("Got Pipe Address");
-      int i=sizeof(uint64_t);
-      for(i=i-2;i>=0;i-=sizeof(int))
-        Serial.print((int)(wPipe>>i*8),HEX);
-      Serial.println();
-      radio.openWritingPipe(wPipe);
-      Serial.println("Opened Writing Pipe");
-      radio.stopListening();
-      radio.write(&c,sizeof(c));
-      Serial.println("Sent Responce");
-      radio.startListening();
-      nodeMode=1;          //Setting to connected mode
-      EEPROM.put(C_ADDRESS,'Y');
-      EEPROM.put(P_ADDRESS,wPipe);
+      message m;
+      radio.read(&m,sizeof(message));  //Accepting attach request
+      if(m.type==ATH_REQ){
+        wPipe=m.data.ath_req.wpipe;
+        Serial.println("Got Pipe Address");
+        for(int i=4;i>=0;i--)
+          Serial.print((uint8_t)(wPipe>>i*8),HEX);
+        Serial.println();
+        radio.openWritingPipe(wPipe);
+        Serial.println("Opened Writing Pipe");
+        radio.stopListening();
+        m.type=ATH_RES;
+        m.data.ath_res.res=0xABAB;
+        radio.write(&m,sizeof(message));
+        Serial.println("Sent Responce");
+        radio.startListening();
+        nodeMode=1;          //Setting to connected mode
+        EEPROM.put(C_ADDRESS,'Y');
+        EEPROM.put(P_ADDRESS,wPipe);
+      }
     }
   }
   else{
