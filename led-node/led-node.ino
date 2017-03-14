@@ -17,7 +17,7 @@ enum sensor_type {LED_ACTUATOR, TEMP_SENSOR, POWER_SWITCH_ACTUATOR};
 
 struct add_node
 {
-  int nid;
+  uint16_t nid;
   uint8_t lpipe;
 };
 
@@ -25,18 +25,18 @@ struct attach_request
 {
   uint64_t rpipe;
   uint64_t wpipe;
-  int nid;
+  uint16_t nid;
 };
 
 struct attach_respond
 {
-  int res;
-  int nid;
+  uint16_t res;
+  uint16_t nid;
 };
 
 typedef struct 
 {
-  int tid;
+  uint16_t tid;
   enum sensor_type type ;
   char name[20];
 } Topic;
@@ -49,31 +49,31 @@ struct create_topic
 struct subscribe_topic_req
 {
   Topic t;
-  int nid;
+  uint16_t nid;
 };
 
 struct subscribe_topic_res
 {
   Topic t;
-  int nid;
+  uint16_t nid;
 };
 
 struct publish_topic
 {
-  int tid;
-  int nid;
-  int tdata;
+  uint16_t tid;
+  uint16_t nid;
+  uint16_t tdata;
 };
 
 struct topic_update_req{
-  int tid;
-  int nid;
+  uint16_t tid;
+  uint16_t nid;
 };
 
 struct topic_update_res
 {
-  int tid;
-  int tdata;
+  uint16_t tid;
+  uint16_t tdata;
 };
 
 
