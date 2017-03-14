@@ -91,6 +91,7 @@ RF24 radio(22,0);
 
 int main(){
   radio.begin();
+  cout<<"Size of enum :"<<sizeof(enum message_type)<<endl;
   uint64_t gotAddress=0xAABBCC0011LL;
   uint64_t readingList[1]={0xAA00112233LL};
   radio.openWritingPipe(gotAddress);
