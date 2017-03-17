@@ -2,6 +2,22 @@
 #include <EEPROM.h>
 #define C_ADDRESS 0
 #define P_ADDRESS 1
+#define LED_PIN 5
+
+//message type
+#define ADD_REQ 0
+#define ATH_REQ 1
+#define ATH_RES 2
+#define SUB_TP_REQ 3
+#define SUB_TP_RES 4
+#define GET_TP_UP_REQ 5
+#define GET_TP_UP_RES 6
+
+
+//topic type
+#define TP_LED 0
+#define TP_TEMP 1
+#define TP_POWER_SWITCH 2
 
 /**
     This code is for a sensor module connected to a gateway.
@@ -12,13 +28,12 @@
 
 **/
 
-enum message_type { ADD_REQ, ATH_REQ, ATH_RES };
-enum sensor_type {LED_ACTUATOR, TEMP_SENSOR, POWER_SWITCH_ACTUATOR};
+// message structures start
 
 struct add_node
 {
   uint16_t nid;
-  uint8_t lpipe;
+  uint64_t wpipe;
 };
 
 struct attach_request
@@ -37,8 +52,7 @@ struct attach_respond
 typedef struct 
 {
   uint16_t tid;
-  enum sensor_type type ;
-  char name[20];
+  uint8_t type ;
 } Topic;
 
 struct create_topic
@@ -48,14 +62,15 @@ struct create_topic
 
 struct subscribe_topic_req
 {
-  Topic t;
   uint16_t nid;
+  Topic t;
 };
 
 struct subscribe_topic_res
 {
-  Topic t;
   uint16_t nid;
+  Topic t;
+
 };
 
 struct publish_topic
@@ -65,12 +80,12 @@ struct publish_topic
   uint16_t tdata;
 };
 
-struct topic_update_req{
+struct get_topic_update_req{
   uint16_t tid;
   uint16_t nid;
 };
 
-struct topic_update_res
+struct get_topic_update_res
 {
   uint16_t tid;
   uint16_t tdata;
@@ -79,14 +94,20 @@ struct topic_update_res
 
 typedef struct message_t
 {
-  enum message_type type;
+  uint8_t type;
   union {
     struct add_node add_req;
     struct attach_request ath_req;
     struct attach_respond ath_res;
+    struct subscribe_topic_req sub_tp_req;
+    struct subscribe_topic_res sub_tp_res;
+    struct get_topic_update_req get_tp_up_req;
+    struct get_topic_update_res get_tp_up_res;
 
   } data;
 } message;
+
+//message structure end
 
 struct topiclinkedlist 
 {
@@ -107,10 +128,17 @@ uint64_t wPipe; //Address of writing pipe
 RF24 radio(9,10);  //Set as per your config
 
 void setup(){
+  //Led Setup
+    pinMode(LED_PIN,OUTPUT);
+  //Led Setup
+
   radio.begin();
   Serial.begin(115200);
   radio.setPALevel(RF24_PA_LOW);
   char flag='N';
+  //
+  EEPROM.put(C_ADDRESS,'N');
+  //
   EEPROM.get(C_ADDRESS,flag);
   if(flag=='Y'){
     Serial.println("Flag = Y");
@@ -127,6 +155,11 @@ void setup(){
     radio.openReadingPipe(1,rPipe);
   }
   radio.startListening();
+  Serial.println("Size of enum :");
+  //Serial.println(sizeof(enum message_type));
+
+  subscribe_list=new topiclinkedlist;
+  publish_list=new topiclinkedlist;
 }
 
 void loop(){
@@ -156,12 +189,57 @@ void loop(){
     }
   }
   else{
-    if(subscribe_list==NULL){
+    if(subscribe_list->next==NULL){
+      //Subscribe to a topic
+      message m;
+      m.type=SUB_TP_REQ;
+      m.data.sub_tp_req.t.type=TP_LED;
+      m.data.sub_tp_req.nid=NodeID;
+      radio.stopListening();
+      radio.write(&m,sizeof(message));
+      radio.startListening();
+      while(!radio.available());            //waiting for responce
+      radio.read(&m,sizeof(message));       //reading responce
+      if(m.type==SUB_TP_RES){
+        topiclinkedlist *p=subscribe_list;
+        for(;p->next!=NULL;p->next=p->next->next);
+        p->next=new topiclinkedlist;
+        p->next->t.tid=m.data.sub_tp_res.t.tid;
+      }
+      else{
+        Serial.println("SUB_TP_RES : Failed");
+      }
 
+    }
+    else{
+      for(topiclinkedlist *p=subscribe_list->next;p!=NULL;p=p->next){
+        message m;
+        m.type=GET_TP_UP_REQ;
+        m.data.get_tp_up_req.tid=p->t.tid;
+        m.data.get_tp_up_req.nid=NodeID;
+        radio.stopListening();
+        radio.write(&m,sizeof(message));
+        radio.startListening();
+        while(!radio.available());           //waiting for responce
+        radio.read(&m,sizeof(message));      //reading responce
+        if(m.type==GET_TP_UP_RES){
+          int lastdata=m.data.get_tp_up_res.tdata;
+          Serial.print("GOT Data: ");
+          Serial.println(lastdata);
+          if(lastdata==55)                  //the value 55 is used for on
+            digitalWrite(LED_PIN,HIGH);
+          else if(lastdata==75)             //the value 75 is used for off
+            digitalWrite(LED_PIN,LOW);
+        }
+        else{
+        Serial.println("GET_TP_UP_RES : Failed");
+      }
+      }
     }
     if(publish_list==NULL){
-
+      //Create a publishing topic
     }
+
   }
   delay(500);
 }
