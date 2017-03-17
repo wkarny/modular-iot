@@ -36,7 +36,7 @@ struct add_node
   uint64_t wpipe;
 };
 
-struct attach_request
+struct __attribute__((packed)) attach_request
 {
   uint16_t nid;
   uint64_t rpipe;
@@ -92,7 +92,7 @@ struct get_topic_update_res
 };
 
 
-typedef struct message_t
+typedef struct __attribute__((packed)) message_t
 {
   uint8_t type;
   union {
