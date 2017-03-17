@@ -129,6 +129,8 @@ int main(){
   radio.stopListening();
   message m;
   m.type=ATH_REQ;
+  m.data.ath_req.nid=0;
+  m.data.ath_req.rpipe=0;
   m.data.ath_req.wpipe=readingList[0];
   radio.write(&m,sizeof(message));
   cout<<"Sent the address"<<endl;
