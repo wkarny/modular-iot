@@ -1,7 +1,7 @@
-#include<iostream>
-#include<cstdio>
-#include<cstdlib>
-#include<RF24/RF24.h>
+#include <iostream>
+#include <cstdio>
+#include <cstdlib>
+#include <RF24/RF24.h>
 using namespace std;
 
 //message type
@@ -38,9 +38,9 @@ struct add_node
 
 struct attach_request
 {
+  uint16_t nid;
   uint64_t rpipe;
   uint64_t wpipe;
-  uint16_t nid;
 };
 
 struct attach_respond

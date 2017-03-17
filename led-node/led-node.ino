@@ -38,9 +38,9 @@ struct add_node
 
 struct attach_request
 {
+  uint16_t nid;
   uint64_t rpipe;
   uint64_t wpipe;
-  uint16_t nid;
 };
 
 struct attach_respond
