@@ -160,9 +160,10 @@ int main(){
       if(m.type==SUB_TP_REQ){
         cout<<"Got: SUB_TP_REQ"<<endl;
         int nid=m.data.sub_tp_req.nid;
-        for(topiclinkedlist *p=TopicList;p->next!=NULL;p->next=p->next->next);
+        topiclinkedlist *p;
+        for(p=TopicList;p->next!=NULL;p->next=p->next->next);
         p->next=new topiclinkedlist;
-        p->next->next=NULL:
+        p->next->next=NULL;
         p->next->t.tid=++last_tid;
         p->next->t.type=m.data.sub_tp_req.t.type;
         cout<<"New Topic Created"<<endl;
