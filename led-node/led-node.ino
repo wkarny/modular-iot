@@ -30,7 +30,7 @@
 
 // message structures start
 
-struct add_node
+struct __attribute__((packed)) add_node
 {
   uint16_t nid;
   uint64_t wpipe;
@@ -43,49 +43,49 @@ struct __attribute__((packed)) attach_request
   uint64_t wpipe;
 };
 
-struct attach_respond
+struct __attribute__((packed)) attach_respond
 {
   uint16_t res;
   uint16_t nid;
 };
 
-typedef struct 
+typedef struct __attribute__((packed)) topic_t
 {
   uint16_t tid;
   uint8_t type ;
 } Topic;
 
-struct create_topic
+struct __attribute__((packed)) create_topic
 {
   Topic t;
 };
 
-struct subscribe_topic_req
-{
-  uint16_t nid;
-  Topic t;
-};
-
-struct subscribe_topic_res
+struct __attribute__((packed)) subscribe_topic_req
 {
   uint16_t nid;
   Topic t;
+};
+
+struct __attribute__((packed)) subscribe_topic_res
+{
+  uint16_t nid;
+  Topic t;
 
 };
 
-struct publish_topic
+struct __attribute__((packed)) publish_topic
 {
   uint16_t tid;
   uint16_t nid;
   uint16_t tdata;
 };
 
-struct get_topic_update_req{
+struct __attribute__((packed)) get_topic_update_req{
   uint16_t tid;
   uint16_t nid;
 };
 
-struct get_topic_update_res
+struct __attribute__((packed)) get_topic_update_res
 {
   uint16_t tid;
   uint16_t tdata;
@@ -159,7 +159,9 @@ void setup(){
   //Serial.println(sizeof(enum message_type));
 
   subscribe_list=new topiclinkedlist;
+  subscribe_list->next=NULL;
   publish_list=new topiclinkedlist;
+  publish_list->next=NULL;
 }
 
 void loop(){
@@ -188,9 +190,9 @@ void loop(){
       }
     }
   }
-  else{
+  else{                                   //nodeMode==1
     if(subscribe_list->next==NULL){
-      //Subscribe to a topic
+      //Subscribe to a topic, Here the LED node requires only one topic
       message m;
       m.type=SUB_TP_REQ;
       m.data.sub_tp_req.t.type=TP_LED;
@@ -198,13 +200,16 @@ void loop(){
       radio.stopListening();
       radio.write(&m,sizeof(message));
       radio.startListening();
-      while(!radio.available());            //waiting for responce
+      Serial.println("SUB_TP_REQ : Sent");
+      while(!radio.available()) Serial.println("Waiting for : SUB_TP_RES"); //waiting for responce
       radio.read(&m,sizeof(message));       //reading responce
       if(m.type==SUB_TP_RES){
+        Serial.println("SUB_TP_RES : Success");
         topiclinkedlist *p=subscribe_list;
-        for(;p->next!=NULL;p->next=p->next->next);
         p->next=new topiclinkedlist;
         p->next->t.tid=m.data.sub_tp_res.t.tid;
+        p->next->next=NULL;
+        Serial.println("Topic created");
       }
       else{
         Serial.println("SUB_TP_RES : Failed");
@@ -220,9 +225,11 @@ void loop(){
         radio.stopListening();
         radio.write(&m,sizeof(message));
         radio.startListening();
+        Serial.println("GET_TP_UP_REQ : Sent");
         while(!radio.available());           //waiting for responce
         radio.read(&m,sizeof(message));      //reading responce
         if(m.type==GET_TP_UP_RES){
+          Serial.println("GET_TP_UP_RES : Success");
           int lastdata=m.data.get_tp_up_res.tdata;
           Serial.print("GOT Data: ");
           Serial.println(lastdata);
@@ -230,6 +237,7 @@ void loop(){
             digitalWrite(LED_PIN,HIGH);
           else if(lastdata==75)             //the value 75 is used for off
             digitalWrite(LED_PIN,LOW);
+          Serial.println("Dicition Taken");
         }
         else{
         Serial.println("GET_TP_UP_RES : Failed");
