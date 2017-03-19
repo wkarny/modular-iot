@@ -11,6 +11,7 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <netdb.h>
+#include <string.h>
 
 using namespace std;
 
