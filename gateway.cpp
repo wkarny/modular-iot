@@ -12,6 +12,7 @@
 #include <sys/types.h>
 #include <netdb.h>
 #include <string.h>
+#include <arpa/inet.h>
 
 using namespace std;
 
