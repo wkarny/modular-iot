@@ -126,7 +126,7 @@ uint16_t last_tid=200;           //should be replaced with non-volatile storage
 void socket_thread(){
   while(1){
     cout<<"Socket Thread"<<endl;
-    sleep(1);
+    //sleep(1);
   }
 }
 
