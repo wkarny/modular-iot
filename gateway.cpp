@@ -14,6 +14,8 @@
 #include <string.h>
 #include <arpa/inet.h>
 
+#include <string>
+
 using namespace std;
 
 #define MAIN_SERVER_IP_ADDR "192.168.0.106"
