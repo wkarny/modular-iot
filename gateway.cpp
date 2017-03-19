@@ -3,6 +3,7 @@
 #include <ctime>
 #include <cstdlib>
 #include <RF24/RF24.h>
+#include <thread>
 using namespace std;
 
 //message type
@@ -122,11 +123,19 @@ RF24 radio(22,0);
 
 uint16_t last_tid=200;           //should be replaced with non-volatile storage
 
+void socket_thread(){
+  while(1){
+    cout<<"Socket Thread"<<endl;
+    sleep(1);
+  }
+}
 
 int main(){
   radio.begin();
   TopicList=new topiclinkedlist;
   TopicList->next=NULL;
+
+  thread sock_thr(&socket_thread);
   //cout<<"Size of enum :"<<sizeof(enum message_type)<<endl;
   uint64_t gotAddress=0xAABBCC0011LL;                //nrf24 needs 5 bytes of address
   uint64_t readingList[1]={0xAA11223344LL};
@@ -152,6 +161,8 @@ int main(){
   }
   else
     cout<<"Unexpected data recived"<<endl;
+
+  sock_thr.join();
 
   while(1){          //Gateway reset condition should be given
     if(radio.available()){
