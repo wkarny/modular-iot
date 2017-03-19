@@ -140,7 +140,7 @@ void socket_thread(){
     if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0)
     {
         printf("\n Socket creation error \n");
-        return -1;
+        return;
     }
   
     memset(&serv_addr, '0', sizeof(serv_addr));
@@ -152,13 +152,13 @@ void socket_thread(){
     if(inet_pton(AF_INET, "192.168.0.106", &serv_addr.sin_addr)<=0) 
     {
         printf("\nInvalid address/ Address not supported \n");
-        return -1;
+        return;
     }
   
     if (connect(sock, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0)
     {
         printf("\nConnection Failed \n");
-        return -1;
+        return;
     }
     send(sock , hello , strlen(hello) , 0 );
     printf("Hello message sent\n");
