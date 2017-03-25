@@ -22,7 +22,7 @@
 
 using namespace std;
 
-#define MAIN_SERVER_IP_ADDR "192.168.0.106"
+//#define MAIN_SERVER_IP_ADDR "192.168.0.106"
 #define MAIN_SERVER_PORT_NUM 8080
 
 
@@ -63,7 +63,7 @@ string dequeueList(){
   return(str);
 }
 
-void socket_thread(){
+void socket_thread(string ip_address){
     struct sockaddr_in address;
     int sock = 0, valread;
     struct sockaddr_in serv_addr;
@@ -80,7 +80,7 @@ void socket_thread(){
     serv_addr.sin_family = AF_INET;
     serv_addr.sin_port = htons(MAIN_SERVER_PORT_NUM);                  //Port Address
       
-    if(inet_pton(AF_INET, MAIN_SERVER_IP_ADDR, &serv_addr.sin_addr)<=0)  //Server IP Address
+    if(inet_pton(AF_INET, ip_address, &serv_addr.sin_addr)<=0)  //Server IP Address
     {
       cout<<"Invalid address\n";
       return;
@@ -112,12 +112,12 @@ void socket_thread(){
 
 }
 
-int main(){
+int main(int argc,char *argv[]){
   radio.begin();
   TopicList=new topiclinkedlist;
   TopicList->next=NULL;
 
-  thread sock_thr(&socket_thread);
+  thread sock_thr(&socket_thread,string(argv[1]));
   //cout<<"Size of enum :"<<sizeof(enum message_type)<<endl;
   uint64_t gotAddress=0xAABBCC0011LL;                //nrf24 needs 5 bytes of address
   uint64_t readingList[1]={0xAA11223344LL};
