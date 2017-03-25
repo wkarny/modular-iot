@@ -58,7 +58,9 @@ int isEmptyList(){
 
 string dequeueList(){
   lock_guard<mutex> gaurd(mu);
-  return(mylist.pop_front());
+  string str=mylist.front();
+  mylist.pop_front();
+  return(str);
 }
 
 void socket_thread(){
