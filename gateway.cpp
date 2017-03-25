@@ -80,7 +80,7 @@ void socket_thread(string ip_address){
     serv_addr.sin_family = AF_INET;
     serv_addr.sin_port = htons(MAIN_SERVER_PORT_NUM);                  //Port Address
       
-    if(inet_pton(AF_INET, ip_address, &serv_addr.sin_addr)<=0)  //Server IP Address
+    if(inet_pton(AF_INET, ip_address.c_str(), &serv_addr.sin_addr)<=0)  //Server IP Address
     {
       cout<<"Invalid address\n";
       return;
