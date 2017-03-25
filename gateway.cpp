@@ -67,7 +67,7 @@ void socket_thread(){
     struct sockaddr_in address;
     int sock = 0, valread;
     struct sockaddr_in serv_addr;
-    char *hello = string("UserID: RPI01 PassWD: 2810").c_str();
+    char *hello = "UserID: RPI01 PassWD: 2810";
     char buffer[1024] = {0};
     if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0)   //Should be replaced by while
     {
@@ -93,11 +93,18 @@ void socket_thread(){
     }
     send(sock , hello , strlen(hello) , 0 );
     cout<<"Auth message sent\n";
-    char *ack=string("ACK").c_str();
+    char *ack="ACK";
     memset(buffer,0,sizeof(buffer));
     while(1){
       valread = read( sock , buffer, 1024);          //Waiting for Msg
       cout<<"Recived from Socket: "<<buffer<<endl;
+      char *cm;
+      cm=strtok(buffer,"+");
+      if(strcmp(cm,"PRINT")){
+        cout<<"Printing list"<<endl;
+        for(list<string>::iterator it=mylist.begin();it!=mylist.end();++it)
+          cout<<*it<<endl;
+      }
       enqueueList(string(buffer));                   //Enqueing in the list
       memset(buffer,0,sizeof(buffer));
       send(sock,ack,strlen(ack),0);                 //Sending ACK
