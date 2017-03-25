@@ -116,13 +116,11 @@ int main(int argc,char *argv[]){
   radio.begin();
   TopicList=new topiclinkedlist;
   TopicList->next=NULL;
-  if(argc==2){
-    thread sock_thr(&socket_thread,string(argv[1]));
-  }
-  else{
+  if(argc!=2){
     cout<<"Required 1 argument"<<endl;
     return 0;
   }
+  thread sock_thr(&socket_thread,string(argv[1]));
   //cout<<"Size of enum :"<<sizeof(enum message_type)<<endl;
   uint64_t gotAddress=0xAABBCC0011LL;                //nrf24 needs 5 bytes of address
   uint64_t readingList[1]={0xAA11223344LL};
