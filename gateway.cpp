@@ -98,14 +98,14 @@ void socket_thread(string ip_address){
     while(1){
       valread = read( sock , buffer, 1024);          //Waiting for Msg
       cout<<"Recived from Socket: "<<buffer<<endl;
+      enqueueList(string(buffer));                   //Enqueing in the list
       char *cm;
       cm=strtok(buffer,"+");
-      if(strcmp(cm,"PRINT")){
+      if(strcmp(cm,"PRINT")==0){
         cout<<"Printing list"<<endl;
         for(list<string>::iterator it=mylist.begin();it!=mylist.end();++it)
           cout<<*it<<endl;
       }
-      enqueueList(string(buffer));                   //Enqueing in the list
       memset(buffer,0,sizeof(buffer));
       send(sock,ack,strlen(ack),0);                 //Sending ACK
     }
