@@ -15,117 +15,18 @@
 #include <arpa/inet.h>
 
 #include <string>
+#include <mutex>
+#include <list>
 
+#include "led-node/msgstruct.h"
 
 using namespace std;
 
 #define MAIN_SERVER_IP_ADDR "192.168.0.106"
 #define MAIN_SERVER_PORT_NUM 8080
 
-//message type
-#define ADD_REQ 0
-#define ATH_REQ 1
-#define ATH_RES 2
-#define SUB_TP_REQ 3
-#define SUB_TP_RES 4
-#define GET_TP_UP_REQ 5
-#define GET_TP_UP_RES 6
 
 
-//topic type
-#define TP_LED 0
-#define TP_TEMP 1
-#define TP_POWER_SWITCH 2
-
-/**
-    This code is for a sensor module connected to a gateway.
-    It uses EEPROM memory to save & retrive allocated writing pipe addresses,
-    whereas the reading pipe address are fixed.
-
-    Note : Here I used this node as LED on/off actuator.
-
-**/
-
-// message structures start
-
-struct __attribute__((packed)) add_node
-{
-  uint16_t nid;
-  uint64_t wpipe;
-};
-
-struct __attribute__((packed)) attach_request
-{
-  uint16_t nid;
-  uint64_t rpipe;
-  uint64_t wpipe;
-};
-
-struct __attribute__((packed)) attach_respond
-{
-  uint16_t res;
-  uint16_t nid;
-};
-
-typedef struct __attribute__((packed)) topic_t
-{
-  uint16_t tid;
-  uint8_t type ;
-} Topic;
-
-struct __attribute__((packed)) create_topic
-{
-  Topic t;
-};
-
-struct __attribute__((packed)) subscribe_topic_req
-{
-  uint16_t nid;
-  Topic t;
-};
-
-struct __attribute__((packed)) subscribe_topic_res
-{
-  uint16_t nid;
-  Topic t;
-
-};
-
-struct __attribute__((packed)) publish_topic
-{
-  uint16_t tid;
-  uint16_t nid;
-  uint16_t tdata;
-};
-
-struct __attribute__((packed)) get_topic_update_req{
-  uint16_t tid;
-  uint16_t nid;
-};
-
-struct __attribute__((packed)) get_topic_update_res
-{
-  uint16_t tid;
-  uint16_t tdata;
-};
-
-
-typedef struct __attribute__((packed)) message_t
-{
-  uint8_t type;
-  union {
-    struct add_node add_req;
-    struct attach_request ath_req;
-    struct attach_respond ath_res;
-    struct subscribe_topic_req sub_tp_req;
-    struct subscribe_topic_res sub_tp_res;
-    struct get_topic_update_req get_tp_up_req;
-    struct get_topic_update_res get_tp_up_res;
-
-  } data;
-} message;
-
-//message structure end
 struct topiclinkedlist 
 {
    Topic t;
@@ -136,8 +37,29 @@ struct topiclinkedlist
 struct topiclinkedlist *TopicList;
 
 RF24 radio(22,0);
+mutex mu;
+list<string> mylist;
 
 uint16_t last_tid=200;           //should be replaced with non-volatile storage
+
+void enqueueList(string str){
+  lock_guard<mutex> gaurd(mu);
+  mylist.push_back(str);
+}
+
+int isEmptyList(){
+  lock_guard<mutex> gaurd(mu);
+  if(mylist.empty()){
+    return 1;
+  }
+  else
+    return 0;
+}
+
+string dequeueList(){
+  lock_guard<mutex> gaurd(mu);
+  return(mylist.pop_front());
+}
 
 void socket_thread(){
     struct sockaddr_in address;
@@ -174,6 +96,7 @@ void socket_thread(){
     while(1){
       valread = read( sock , buffer, 1024);          //Waiting for Msg
       cout<<"Recived from Socket: "<<buffer<<endl;
+      enqueueList(string(buffer));                   //Enqueing in the list
       memset(buffer,0,sizeof(buffer));
       send(sock,ack,strlen(ack),0);                 //Sending ACK
     }
@@ -212,30 +135,30 @@ int main(){
   else
     cout<<"Unexpected data recived"<<endl;
 
-  sock_thr.join();
 
   while(1){          //Gateway reset condition should be given
     if(radio.available()){
       message m;
       radio.read(&m,sizeof(message));
-      if(m.type==SUB_TP_REQ){
-        cout<<"Got: SUB_TP_REQ"<<endl;
-        int nid=m.data.sub_tp_req.nid;
+      if(m.type==CRT_TP_REQ){
+        cout<<"Got: CRT_TP_REQ"<<endl;
+        int nid=m.data.crt_tp_req.nid;
         topiclinkedlist *p;
         for(p=TopicList;p->next!=NULL;p->next=p->next->next);
         p->next=new topiclinkedlist;
         p->next->next=NULL;
         p->next->t.tid=++last_tid;
-        p->next->t.type=m.data.sub_tp_req.t.type;
+        p->next->t.type=m.data.crt_tp_req.t.type;
         cout<<"New Topic Created"<<endl;
-        m.type=SUB_TP_RES;
-        m.data.sub_tp_res.nid=nid;
-        m.data.sub_tp_res.t.tid=last_tid;
-        m.data.sub_tp_res.t.type=p->next->t.type;
+        m.type=CRT_TP_RES;
+        m.data.crt_tp_res.nid=nid;
+        m.data.crt_tp_res.t.tid=last_tid;
+        m.data.crt_tp_res.t.type=p->next->t.type;
+        m.data.crt_tp_res.res=ACK;
         radio.stopListening();
         radio.write(&m,sizeof(message));       //Shold be directed perticular to that node
         radio.startListening();
-        cout<<"SUB_TP_RES : Sent"<<endl;
+        cout<<"CRT_TP_RES : Sent"<<endl;
       }
       else if(m.type==GET_TP_UP_REQ){
         int my_time=(int)time(0);
@@ -258,5 +181,5 @@ int main(){
       }
     }
   }
-   
+   sock_thr.join();
 }

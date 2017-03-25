@@ -1,113 +1,13 @@
 #include <RF24.h>
 #include <EEPROM.h>
+
+#include "msgstruct.h"
+
 #define C_ADDRESS 0
 #define P_ADDRESS 1
 #define LED_PIN 5
 
-//message type
-#define ADD_REQ 0
-#define ATH_REQ 1
-#define ATH_RES 2
-#define SUB_TP_REQ 3
-#define SUB_TP_RES 4
-#define GET_TP_UP_REQ 5
-#define GET_TP_UP_RES 6
 
-
-//topic type
-#define TP_LED 0
-#define TP_TEMP 1
-#define TP_POWER_SWITCH 2
-
-/**
-    This code is for a sensor module connected to a gateway.
-    It uses EEPROM memory to save & retrive allocated writing pipe addresses,
-    whereas the reading pipe address are fixed.
-
-    Note : Here I used this node as LED on/off actuator.
-
-**/
-
-// message structures start
-
-struct __attribute__((packed)) add_node
-{
-  uint16_t nid;
-  uint64_t wpipe;
-};
-
-struct __attribute__((packed)) attach_request
-{
-  uint16_t nid;
-  uint64_t rpipe;
-  uint64_t wpipe;
-};
-
-struct __attribute__((packed)) attach_respond
-{
-  uint16_t res;
-  uint16_t nid;
-};
-
-typedef struct __attribute__((packed)) topic_t
-{
-  uint16_t tid;
-  uint8_t type ;
-} Topic;
-
-struct __attribute__((packed)) create_topic
-{
-  Topic t;
-};
-
-struct __attribute__((packed)) subscribe_topic_req
-{
-  uint16_t nid;
-  Topic t;
-};
-
-struct __attribute__((packed)) subscribe_topic_res
-{
-  uint16_t nid;
-  Topic t;
-
-};
-
-struct __attribute__((packed)) publish_topic
-{
-  uint16_t tid;
-  uint16_t nid;
-  uint16_t tdata;
-};
-
-struct __attribute__((packed)) get_topic_update_req{
-  uint16_t tid;
-  uint16_t nid;
-};
-
-struct __attribute__((packed)) get_topic_update_res
-{
-  uint16_t tid;
-  uint16_t tdata;
-};
-
-
-typedef struct __attribute__((packed)) message_t
-{
-  uint8_t type;
-  union {
-    struct add_node add_req;
-    struct attach_request ath_req;
-    struct attach_respond ath_res;
-    struct subscribe_topic_req sub_tp_req;
-    struct subscribe_topic_res sub_tp_res;
-    struct get_topic_update_req get_tp_up_req;
-    struct get_topic_update_res get_tp_up_res;
-
-  } data;
-} message;
-
-//message structure end
 
 struct topiclinkedlist 
 {
@@ -194,22 +94,27 @@ void loop(){
     if(subscribe_list->next==NULL){
       //Subscribe to a topic, Here the LED node requires only one topic
       message m;
-      m.type=SUB_TP_REQ;
-      m.data.sub_tp_req.t.type=TP_LED;
-      m.data.sub_tp_req.nid=NodeID;
+      m.type=CRT_TP_REQ;
+      m.data.crt_tp_req.t.type=TP_LED;
+      m.data.crt_tp_req.nid=NodeID;
       radio.stopListening();
       radio.write(&m,sizeof(message));
       radio.startListening();
-      Serial.println("SUB_TP_REQ : Sent");
-      while(!radio.available()) Serial.println("Waiting for : SUB_TP_RES"); //waiting for responce
+      Serial.println("CRT_TP_REQ : Sent");
+      while(!radio.available()) Serial.println("Waiting for : CRT_TP_RES"); //waiting for responce
       radio.read(&m,sizeof(message));       //reading responce
-      if(m.type==SUB_TP_RES){
-        Serial.println("SUB_TP_RES : Success");
-        topiclinkedlist *p=subscribe_list;
-        p->next=new topiclinkedlist;
-        p->next->t.tid=m.data.sub_tp_res.t.tid;
-        p->next->next=NULL;
-        Serial.println("Topic created");
+      if(m.type==CRT_TP_RES){
+        Serial.println("CRT_TP_RES : Success");
+        if(m.data.crt_tp_res.res==ACK){
+          topiclinkedlist *p=subscribe_list;
+          p->next=new topiclinkedlist;
+          p->next->t.tid=m.data.crt_tp_res.t.tid;
+          p->next->next=NULL;
+          Serial.println("Topic created");
+        }
+        else{
+          Serial.println("CRT_TP_RES: Failed (NACK)");
+        }
       }
       else{
         Serial.println("SUB_TP_RES : Failed");
