@@ -357,7 +357,7 @@ void nrf_thread(){
           else{
             cout<<"Unable to Attach"<<endl;
           }
-          enqueueList(2,"ADR+"+allocatedNID+"+"+reqid);
+          enqueueList(2,"ADR+"+to_string(allocatedNID)+"+"+to_string(reqid));
         }
         else{
           //Send a NACK
@@ -369,7 +369,7 @@ void nrf_thread(){
         for(int i=0;i<3;i++){
           cm=strtok(NULL,"+");
           if(cm==NULL){
-            cout<<"Error is parsing : Not Enough Tokens"<endl;
+            cout<<"Error is parsing : Not Enough Tokens"<<endl;
             errorInToken=true;
             break;
           }
@@ -386,7 +386,7 @@ void nrf_thread(){
         }
     }
     else{
-      cout<<"Unrecognised Command"<endl;
+      cout<<"Unrecognised Command"<<endl;
     }
   }
 
