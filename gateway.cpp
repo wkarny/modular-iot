@@ -382,7 +382,7 @@ void nrf_thread(){
           if(tp_man.putData(temp_tid,temp_tdata))
             enqueueList(2,"PTUR+"+to_string(temp_tid)+"+ACK+"+to_string(temp_reqid));
           else
-            enqueueList(2,"PTUR+"+to_string(ttemp_tid)+"+NACK+"+to_string(temp_reqid));
+            enqueueList(2,"PTUR+"+to_string(temp_tid)+"+NACK+"+to_string(temp_reqid));
         }
     }
     else{
