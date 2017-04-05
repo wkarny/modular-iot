@@ -331,7 +331,9 @@ void nrf_thread(){
     if(!isEmptyList(1)){   // For servicing Server Requests
       string str=dequeueList(1);
       char *cm;
-      cm=strtok(str.c_str(),"+");
+      char buffer[1024];
+      strcpy(buffer,str.c_str());
+      cm=strtok(buffer,"+");
       if(strcmp(cm,"ADQ")==0){   //ADQ start
         char* token[3];
         bool errorInToken=false;
