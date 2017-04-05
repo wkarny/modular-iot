@@ -351,7 +351,7 @@ void nrf_thread(){
           uint64_t pipe=atol(token[1]);
           int reqid=atoi(token[2]);
           int allocatedNID=0;
-          if((allocatedNID=sensorNetwork.attachNode(pipe)!=0){
+          if((allocatedNID=sensorNetwork.attachNode(pipe))!=0){
             cout<<"Successfully node attach"<<endl;
           }
           else{
