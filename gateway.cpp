@@ -128,23 +128,31 @@ list<string> queue2;
 uint16_t last_tid=200;           //should be replaced with non-volatile storage
 
 void enqueueList(list<string> mylist,mutex mu,string str){
-  lock_guard<mutex> gaurd(mu);
+  //lock_guard<mutex> gaurd(mu);
+  mu.lock();
   mylist.push_back(str);
+  mu.unlock();
 }
 
 int isEmptyList(list<string> mylist,mutex mu){
-  lock_guard<mutex> gaurd(mu);
+  //lock_guard<mutex> gaurd(mu);
+  mu.lock();
   if(mylist.empty()){
+    mu.unlock();
     return 1;
   }
-  else
+  else{
+    mu.unlock();
     return 0;
+  }
 }
 
 string dequeueList(list<string> mylist,mutex mu){
-  lock_guard<mutex> gaurd(mu);
+  //lock_guard<mutex> gaurd(mu);
+  mu.lock();
   string str=mylist.front();
   mylist.pop_front();
+  mu.unlock();
   return(str);
 }
 
@@ -248,7 +256,7 @@ int MyRadio::attachNode(uint64_t pipe){
   else{
     radio->openWritingPipe(pipe);
     cout<<"Opened Writing Pipe"<<endl;
-    radio.openReadingPipe(last_pipe_num+1,last_pipe+1);
+    radio->openReadingPipe(last_pipe_num+1,last_pipe+1);
     cout<<"Opened Reading Pipe"<<endl;
     radio->stopListening();
     message m;
