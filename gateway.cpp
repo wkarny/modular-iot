@@ -49,7 +49,7 @@ class TopicManager
 public:
   TopicManager();
   ~TopicManager();
-  bool addTopic(uint16_t tid, uint8_t type);
+  bool addTopic(uint16_t tid, uint8_t type,uint16_t nid);
   bool find(uint16_t tid);
   uint32_t getData(uint16_t tid);
   uint8_t getType(uint16_t tid);
@@ -114,7 +114,7 @@ bool TopicManager::putData(uint16_t tid, uint32_t data){
     tData[tid]=data;
   }
   else{
-    cout<<"putData : Failed, not found tid"<endl;
+    cout<<"putData : Failed, not found tid"<<endl;
   }
 }
 
