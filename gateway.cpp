@@ -380,9 +380,9 @@ void nrf_thread(){
           int temp_tdata=atoi(token[1]);
           int temp_reqid=atoi(token[2]);
           if(tp_man.putData(temp_tid,temp_tdata))
-            enqueueList(2,"PTUR+"+to_string(temp_tid)+"+ACK+"+to_string(ttemp_reqid));
+            enqueueList(2,"PTUR+"+to_string(temp_tid)+"+ACK+"+to_string(temp_reqid));
           else
-            enqueueList(2,"PTUR+"+to_string(ttemp_tid)+"+NACK+"+to_string(ttemp_reqid));
+            enqueueList(2,"PTUR+"+to_string(ttemp_tid)+"+NACK+"+to_string(temp_reqid));
         }
     }
     else{
@@ -432,7 +432,7 @@ void nrf_thread(){
         // if(my_time%2==0){
           int temp_tid=m.data.get_tp_up_req.tid;
           m.type=GET_TP_UP_RES;
-          m.data.get_tp_up_res.tdata=tp_man.getData(tid);
+          m.data.get_tp_up_res.tdata=tp_man.getData(temp_tid);   //Should handle error
           if(sensorNetwork.sendMessage(nid,m))
             cout<<"SUB_TP_RES : Sent"<<endl;
           else
@@ -440,6 +440,7 @@ void nrf_thread(){
       }
   }
 
+}
 }
 
 int main(int argc,char *argv[]){
