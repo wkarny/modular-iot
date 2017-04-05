@@ -164,7 +164,7 @@ string dequeueList(int q){
     queue1.pop_front();
     return(str);
   }else if(q==2){
-    ock_guard<mutex> gaurd(mu2);
+    lock_guard<mutex> gaurd(mu2);
     string str=queue2.front();
     queue2.pop_front();
     return(str);
