@@ -127,33 +127,48 @@ list<string> queue2;
 
 uint16_t last_tid=200;           //should be replaced with non-volatile storage
 
-void enqueueList(list<string> mylist,mutex mu,string str){
-  //lock_guard<mutex> gaurd(mu);
-  mu.lock();
-  mylist.push_back(str);
-  mu.unlock();
-}
-
-int isEmptyList(list<string> mylist,mutex mu){
-  //lock_guard<mutex> gaurd(mu);
-  mu.lock();
-  if(mylist.empty()){
-    mu.unlock();
-    return 1;
-  }
-  else{
-    mu.unlock();
-    return 0;
+void enqueueList(int q,string str){
+  if(q==1){
+    lock_guard<mutex> gaurd(mu1);
+    queue1.push_back(str);
+  }else if(q==2){
+    lock_guard<mutex> gaurd(mu2);
+    queue2.push_back(str);
   }
 }
 
-string dequeueList(list<string> mylist,mutex mu){
-  //lock_guard<mutex> gaurd(mu);
-  mu.lock();
-  string str=mylist.front();
-  mylist.pop_front();
-  mu.unlock();
-  return(str);
+int isEmptyList(int q){
+  if(q==1){
+    lock_guard<mutex> gaurd(mu1);
+    if(queue1.empty()){
+      return 1;
+    }
+    else{
+      return 0;
+    }
+  }else if(q==2){
+    lock_guard<mutex> gaurd(mu2);
+    if(queue2.empty()){
+      return 1;
+    }
+    else{
+      return 0;
+    }
+  }
+}
+
+string dequeueList(int q){
+  if(q==1){
+    lock_guard<mutex> gaurd(mu1);
+    string str=queue1.front();
+    queue1.pop_front();
+    return(str);
+  }else if(q==2){
+    ock_guard<mutex> gaurd(mu2);
+    string str=queue2.front();
+    queue2.pop_front();
+    return(str);
+  }
 }
 
 void socket_thread(string ip_address){
@@ -191,7 +206,7 @@ void socket_thread(string ip_address){
     while(1){
       valread = read( sock , buffer, 1024);          //Waiting for Msg
       cout<<"Recived from Socket: "<<buffer<<endl;
-      enqueueList(queue1,mu1,string(buffer));                   //Enqueing in the list
+      enqueueList(1,string(buffer));                   //Enqueing in the list
       char *cm;
       cm=strtok(buffer,"+");
       if(strcmp(cm,"PRINT")==0){
@@ -314,7 +329,7 @@ void nrf_thread(){
   sensorNetwork.begin();
   while(1){
     if(!isEmptyList(queue1,mu1)){   // For servicing Server Requests
-      string str=dequeueList(queue1,mu1);
+      string str=dequeueList(1);
       char *cm;
       cm=strtok(str.c_str(),"+");
       if(strcmp(cm,"ADQ")==0){   //ADQ start
@@ -340,7 +355,7 @@ void nrf_thread(){
           else{
             cout<<"Unable to Attach"<<endl;
           }
-          enqueueList(queue2,mu2,"ADR+"+allocatedNID+"+"+reqid);
+          enqueueList(2,"ADR+"+allocatedNID+"+"+reqid);
         }
         else{
           //Send a NACK
@@ -363,9 +378,9 @@ void nrf_thread(){
           int temp_tdata=atoi(token[1]);
           int temp_reqid=atoi(token[2]);
           if(tp_man.putData(temp_tid,temp_tdata))
-            enqueueList(queue2,mu2,"PTUR+"+temp_tid+"+ACK+"+temp_reqid);
+            enqueueList(2,"PTUR+"+temp_tid+"+ACK+"+temp_reqid);
           else
-            enqueueList(queue2,mu2,"PTUR+"+temp_tid+"+NACK+"+temp_reqid);
+            enqueueList(2,,"PTUR+"+temp_tid+"+NACK+"+temp_reqid);
         }
     }
     else{
