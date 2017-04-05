@@ -95,7 +95,7 @@ struct __attribute__((packed)) publish_topic
 {
   uint16_t tid;
   uint16_t nid;
-  uint16_t tdata;
+  uint32_t tdata;
 };
 
 struct __attribute__((packed)) get_topic_update_req{
@@ -106,12 +106,13 @@ struct __attribute__((packed)) get_topic_update_req{
 struct __attribute__((packed)) get_topic_update_res
 {
   uint16_t tid;
-  uint16_t tdata;
+  uint32_t tdata;
 };
 
 
 typedef struct __attribute__((packed)) message_t
 {
+  uint16_t nid;
   uint8_t type;
   union {
     struct add_node add_req;
