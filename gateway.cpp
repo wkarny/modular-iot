@@ -47,8 +47,8 @@ class TopicManager
   unordered_map<uint16_t,uint8_t> tType;
   unordered_map<uint16_t,uint16_t> tNid;
 public:
-  TopicManager();
-  ~TopicManager();
+  TopicManager(){};
+  ~TopicManager(){};
   bool addTopic(uint16_t tid, uint8_t type,uint16_t nid);
   bool find(uint16_t tid);
   uint32_t getData(uint16_t tid);
@@ -235,7 +235,7 @@ public:
 
   //Member functions
   MyRadio(int ce_pin,int cs_pin);
-  ~MyRadio();
+  ~MyRadio(){};
   void begin();
   int attachNode(uint64_t pipe);
   void increaseNode(uint64_t pipe);
