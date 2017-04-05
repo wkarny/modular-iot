@@ -328,7 +328,7 @@ void nrf_thread(){
   MyRadio sensorNetwork(22,0);
   sensorNetwork.begin();
   while(1){
-    if(!isEmptyList(queue1,mu1)){   // For servicing Server Requests
+    if(!isEmptyList(1)){   // For servicing Server Requests
       string str=dequeueList(1);
       char *cm;
       cm=strtok(str.c_str(),"+");
