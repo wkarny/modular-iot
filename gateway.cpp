@@ -340,7 +340,7 @@ void nrf_thread(){
         for(int i=0;i<3;i++){
           cm=strtok(NULL,"+");
           if(cm==NULL){
-            cout<<"Error is parsing : Not Enough Tokens"<endl;
+            cout<<"Error is parsing : Not Enough Tokens"<<endl;
             errorInToken=true;
             break;
           }
@@ -380,9 +380,9 @@ void nrf_thread(){
           int temp_tdata=atoi(token[1]);
           int temp_reqid=atoi(token[2]);
           if(tp_man.putData(temp_tid,temp_tdata))
-            enqueueList(2,"PTUR+"+temp_tid+"+ACK+"+temp_reqid);
+            enqueueList(2,"PTUR+"+to_string(temp_tid)+"+ACK+"+to_string(ttemp_reqid));
           else
-            enqueueList(2,,"PTUR+"+temp_tid+"+NACK+"+temp_reqid);
+            enqueueList(2,"PTUR+"+to_string(ttemp_tid)+"+NACK+"+to_string(ttemp_reqid));
         }
     }
     else{
