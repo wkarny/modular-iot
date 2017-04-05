@@ -285,7 +285,7 @@ int MyRadio::attachNode(uint64_t pipe){
     radio->startListening();
     uint8_t pipe_num=0;
     while(pipe_num!=last_pipe_num+1)
-      while(!radio->available(pipe_num));            //Should terminate after some time
+      while(!radio->available(&pipe_num));            //Should terminate after some time
     cout<<"Got someting"<<endl;
     radio->read(&m,sizeof(message));
     if(m.type==ATH_RES){
