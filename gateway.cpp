@@ -291,7 +291,7 @@ int MyRadio::attachNode(uint64_t pipe){
     if(m.type==ATH_RES){
       cout<<"Successfully connected"<<endl;
       cout<<"Got respond id : "<<std::hex<<m.data.ath_res.res<<endl;
-      increaseNode();
+      increaseNode(pipe);
       return nodeIDAllocated;
     }
     else
