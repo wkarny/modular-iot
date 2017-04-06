@@ -421,12 +421,10 @@ void nrf_thread(){
         // radio.stopListening();
         // radio.write(&m,sizeof(message));       //Shold be directed perticular to that node
         // radio.startListening();
-        if(sensorNetwork.sendMessage(nid,m)){
+        while(!sensorNetwork.sendMessage(nid,m)){
+          cout<<"CRT_TP_RES : Sending"<<endl;
+        }
           cout<<"CRT_TP_RES : Sent"<<endl;
-        }
-        else{
-          cout<<"CRT_TP_RES : Failed to send"<<endl;
-        }
         
       }
       else if(m.type==GET_TP_UP_REQ){

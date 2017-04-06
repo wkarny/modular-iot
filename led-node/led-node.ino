@@ -22,7 +22,7 @@ struct topiclinkedlist *subscribe_list=NULL,*publish_list=NULL;
 // Lists for subscribe & publish topic
 
 int NodeID=0x00AA;
-uint64_t rPipe=0xAABBCC0011LL; //Address for the reading pipe
+uint64_t rPipe=86; //Address for the reading pipe
 uint64_t wPipe; //Address of writing pipe
 
 RF24 radio(9,10);  //Set as per your config
