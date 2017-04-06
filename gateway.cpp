@@ -264,6 +264,7 @@ void MyRadio::increaseNode(uint64_t pipe){
   last_pipe++;
   last_nid++;
   last_pipe_num++;
+  radio->openReadingPipe(last_pipe_num,last_pipe);
 }
 
 int MyRadio::attachNode(uint64_t pipe){

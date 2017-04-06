@@ -72,9 +72,9 @@ void loop(){
       radio.read(&m,sizeof(message));  //Accepting attach request
       if(m.type==ATH_REQ){
         wPipe=m.data.ath_req.wpipe;
-        Serial.println("Got Pipe Address");
-        for(int i=4;i>=0;i--)
-          Serial.print((uint8_t)(wPipe>>i*8),HEX);
+        Serial.print("Got Pipe Address : ");
+        //for(int i=4;i>=0;i--)
+        Serial.println((int)wPipe);
         Serial.println();
         radio.openWritingPipe(wPipe);
         Serial.println("Opened Writing Pipe");
