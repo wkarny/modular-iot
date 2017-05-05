@@ -216,8 +216,8 @@ void socket_thread(){
         perror("accept");
         exit(EXIT_FAILURE);
     }
-    valread = read( new_socket , buffer, 1024);
-    printf("Recived :%s\n",buffer );
+    // valread = read( new_socket , buffer, 1024);
+    // printf("Recived :%s\n",buffer );
     while(1){
       memset(buffer,0,sizeof(buffer));
       valread = read( new_socket , buffer, 1024);          //Waiting for Msg
