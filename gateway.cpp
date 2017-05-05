@@ -122,8 +122,8 @@ bool TopicManager::putData(uint16_t tid, uint32_t data){
 
 
 mutex mu1,mu2;
-list<string> queue1;
-list<string> queue2;
+list<string> queue1;  // for socket_server --> nrf_sever
+list<string> queue2;  // for nrf_server --> socket_server
 
 uint16_t last_tid=200;           //should be replaced with non-volatile storage
 
@@ -218,20 +218,15 @@ void socket_thread(){
     }
     valread = read( new_socket , buffer, 1024);
     printf("Recived :%s\n",buffer );
-    char ack[5]={'a','c','k','\0'};
     while(1){
+      memset(buffer,0,sizeof(buffer));
       valread = read( new_socket , buffer, 1024);          //Waiting for Msg
       cout<<"Recived from Socket: "<<buffer<<endl;
       enqueueList(1,string(buffer));                   //Enqueing in the list
-      char *cm;
-      cm=strtok(buffer,"+");
-      if(strcmp(cm,"PRINT")==0){
-        cout<<"Printing list"<<endl;
-        for(list<string>::iterator it=queue1.begin();it!=queue1.end();++it)  //Should not access here
-          cout<<*it<<endl;
-      }
-      memset(buffer,0,sizeof(buffer));
-      send(new_socket,ack,strlen(ack),0); 
+      while(isEmptyList(2));
+      string reply;
+      reply=dequeueList(2);
+      send(new_socket,reply,strlen(reply),0); 
     }
 }
 
