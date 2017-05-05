@@ -225,6 +225,7 @@ void socket_thread(){
       char *cm=strtok(buffer,"+");
       if(strcmp(cm,"LOGIN")==0){
         string rpl;
+        cout<<"Recived from Socket: "<<buffer<<endl;
         if(strcmp(buffer,"LOGIN+wyes+123456")==0){
           cout<<"Login : Success"<<endl;
           rpl="LOGIN+ACK";
