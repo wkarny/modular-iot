@@ -226,10 +226,13 @@ void socket_thread(){
       if(strcmp(cm,"LOGIN")==0){
         string rpl;
         if(strcmp(buffer,"LOGIN+wyes+123456")==0){
+          cout<<"Login : Success"<<endl;
           rpl="LOGIN+ACK";
         }
-        else
+        else{
+          cout<<"Login : Denied"<<endl;
           rpl="LOGIN+NACK";
+        }
         send(new_socket,rpl.c_str(),strlen(rpl.c_str()),0); 
       }
       else{
