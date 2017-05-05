@@ -221,6 +221,7 @@ void socket_thread(){
     while(1){
       memset(buffer,0,sizeof(buffer));
       valread = read( new_socket , buffer, 1024);          //Waiting for Msg
+      cout<<"Recived from Socket: "<<buffer<<endl;
       char *cm=strtok(buffer,"+");
       if(strcmp(cm,"LOGIN")==0){
         string rpl;
@@ -232,7 +233,7 @@ void socket_thread(){
         send(new_socket,rpl.c_str(),strlen(rpl.c_str()),0); 
       }
       else{
-        cout<<"Recived from Socket: "<<buffer<<endl;
+        
         enqueueList(1,string(buffer));                   //Enqueing in the list
         while(isEmptyList(2));
         string reply;
