@@ -225,10 +225,17 @@ void socket_thread(){
       char *cm=strtok(buffer,"+");
       if(strcmp(cm,"LOGIN")==0){
         string rpl;
-        cout<<"Recived from Socket: "<<buffer<<endl;
-        if(strcmp(buffer,"LOGIN+wyes+123456")==0){
+        cm=strtok(NULL,"+");
+        if(strcmp(cm,"wyes")==0){
+          cm=strtok(NULL,"+");
+          if(strcmp(cm,"123456")==0){
           cout<<"Login : Success"<<endl;
           rpl="LOGIN+ACK";
+          }
+          else{
+          cout<<"Login : Denied"<<endl;
+          rpl="LOGIN+NACK";
+         }
         }
         else{
           cout<<"Login : Denied"<<endl;
