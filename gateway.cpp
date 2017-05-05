@@ -218,6 +218,7 @@ void socket_thread(){
     }
     valread = read( new_socket , buffer, 1024);
     printf("Recived :%s\n",buffer );
+    char ack[5]={'a','c','k','\0'};
     while(1){
       valread = read( new_socket , buffer, 1024);          //Waiting for Msg
       cout<<"Recived from Socket: "<<buffer<<endl;
