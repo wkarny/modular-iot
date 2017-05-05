@@ -84,7 +84,7 @@ uint32_t TopicManager::getData(uint16_t tid){
     return tData[tid];
   }
   else{
-    cout<<"getData : Failed (TID ="+tostring(tid)+" NOT FOUND)"<<endl;
+    cout<<"getData : Failed (TID ="+to_string(tid)+" NOT FOUND)"<<endl;
     return 0;
   }
 }
