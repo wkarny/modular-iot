@@ -226,7 +226,7 @@ void socket_thread(){
       if(strcmp(cm,"LOGIN")==0){
         string rpl;
         if(strcmp(buffer,"LOGIN+wyes+123456")==0){
-          rpl="lOGIN+ACK";
+          rpl="LOGIN+ACK";
         }
         else
           rpl="LOGIN+NACK";
