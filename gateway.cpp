@@ -24,8 +24,8 @@
 using namespace std;
 
 //#define MAIN_SERVER_IP_ADDR "192.168.0.106"
-#define MAIN_SERVER_PORT_NUM 8080
-
+//#define MAIN_SERVER_PORT_NUM 8080
+#define PORT 5050
 
 
 // struct topiclinkedlist 
@@ -171,42 +171,55 @@ string dequeueList(int q){
   }
 }
 
-void socket_thread(string ip_address){
+void socket_thread(){
+
+    int server_fd, new_socket, valread;
     struct sockaddr_in address;
-    int sock = 0, valread;
-    struct sockaddr_in serv_addr;
-    char hello[100];
-    strcpy(hello,"UserID: RPI01 PassWD: 2810");
+    int opt = 1;
+    int addrlen = sizeof(address);
     char buffer[1024] = {0};
-    if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0)   //Should be replaced by while
-    {
-      cout<<"Socket creation error\n";
-      return;
-    }
-  
-    memset(&serv_addr, '0', sizeof(serv_addr));
-  
-    serv_addr.sin_family = AF_INET;
-    serv_addr.sin_port = htons(MAIN_SERVER_PORT_NUM);                  //Port Address
+    //char *hello = "Hello from server";
       
-    if(inet_pton(AF_INET, ip_address.c_str(), &serv_addr.sin_addr)<=0)  //Server IP Address
+    // Creating socket file descriptor
+    if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0)
     {
-      cout<<"Invalid address\n";
-      return;
+        perror("socket failed");
+        exit(EXIT_FAILURE);
     }
-  
-    if (connect(sock, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0)
+      
+    // Forcefully attaching socket to the port 8080
+    if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT,
+                                                  &opt, sizeof(opt)))
     {
-      cout<<"Connection Failed \n";
-      return;
+        perror("setsockopt");
+        exit(EXIT_FAILURE);
     }
-    send(sock , hello , strlen(hello) , 0 );
-    cout<<"Auth message sent\n";
-    char ack[10];
-    strcpy(ack,"ACK");
-    memset(buffer,0,sizeof(buffer));
+    address.sin_family = AF_INET;
+    address.sin_addr.s_addr = INADDR_ANY;
+    address.sin_port = htons( PORT );
+      
+    // Forcefully attaching socket to the port 8080
+    if (bind(server_fd, (struct sockaddr *)&address, 
+                                 sizeof(address))<0)
+    {
+        perror("bind failed");
+        exit(EXIT_FAILURE);
+    }
+    if (listen(server_fd, 3) < 0)
+    {
+        perror("listen");
+        exit(EXIT_FAILURE);
+    }
+    if ((new_socket = accept(server_fd, (struct sockaddr *)&address, 
+                       (socklen_t*)&addrlen))<0)
+    {
+        perror("accept");
+        exit(EXIT_FAILURE);
+    }
+    valread = read( new_socket , buffer, 1024);
+    printf("Recived :%s\n",buffer );
     while(1){
-      valread = read( sock , buffer, 1024);          //Waiting for Msg
+      valread = read( new_socket , buffer, 1024);          //Waiting for Msg
       cout<<"Recived from Socket: "<<buffer<<endl;
       enqueueList(1,string(buffer));                   //Enqueing in the list
       char *cm;
@@ -217,9 +230,8 @@ void socket_thread(string ip_address){
           cout<<*it<<endl;
       }
       memset(buffer,0,sizeof(buffer));
-      send(sock,ack,strlen(ack),0);                 //Sending ACK
+      send(new_socket,ack,strlen(ack),0); 
     }
-
 }
 
 
@@ -264,7 +276,7 @@ void MyRadio::increaseNode(uint64_t pipe){
   last_pipe++;
   last_nid++;
   last_pipe_num++;
-  radio->openReadingPipe(last_pipe_num,last_pipe);
+  //radio->openReadingPipe(last_pipe_num,last_pipe);
 }
 
 int MyRadio::attachNode(uint64_t pipe){
@@ -304,6 +316,7 @@ int MyRadio::attachNode(uint64_t pipe){
 
 int MyRadio::sendMessage(uint16_t nid,message m){
   if(writing_list.find(nid)==writing_list.end()){
+    cout<<"sendMessage : nid not found"<<endl;
     return 0;
   }
   else{
@@ -448,11 +461,11 @@ int main(int argc,char *argv[]){
   // radio.begin();
   // TopicList=new topiclinkedlist;
   // TopicList->next=NULL;
-  if(argc!=2){
-    cout<<"Required 1 argument (./a.out <ip address>)"<<endl;
-    return 0;
-  }
-  thread sock_thr(&socket_thread,string(argv[1]));
+  // if(argc!=2){
+  //   cout<<"Required 1 argument (./a.out <ip address>)"<<endl;
+  //   return 0;
+  // }
+  thread sock_thr(&socket_thread);
   thread nrf_thr(&nrf_thread);
   //cout<<"Size of enum :"<<sizeof(enum message_type)<<endl;
   
