@@ -226,7 +226,7 @@ void socket_thread(){
       while(isEmptyList(2));
       string reply;
       reply=dequeueList(2);
-      send(new_socket,reply,strlen(reply),0); 
+      send(new_socket,reply.c_str(),strlen(reply.c_str()),0); 
     }
 }
 
