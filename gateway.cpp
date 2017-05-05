@@ -84,7 +84,7 @@ uint32_t TopicManager::getData(uint16_t tid){
     return tData[tid];
   }
   else{
-    cout<<"getData : Failed"<<endl;
+    cout<<"getData : Failed (TID ="+tid+" NOT FOUND)"<<endl;
     return 0;
   }
 }
@@ -221,12 +221,24 @@ void socket_thread(){
     while(1){
       memset(buffer,0,sizeof(buffer));
       valread = read( new_socket , buffer, 1024);          //Waiting for Msg
-      cout<<"Recived from Socket: "<<buffer<<endl;
-      enqueueList(1,string(buffer));                   //Enqueing in the list
-      while(isEmptyList(2));
-      string reply;
-      reply=dequeueList(2);
-      send(new_socket,reply.c_str(),strlen(reply.c_str()),0); 
+      char *cm=strtok(buffer,"+");
+      if(strcmp(cm,"LOGIN")==0){
+        string rpl;
+        if(strcmp(buffer,"LOGIN+wyes+123456")==0){
+          rpl="lOGIN+ACK";
+        }
+        else
+          rpl="LOGIN+NACK";
+        send(new_socket,rpl.c_str(),strlen(rpl.c_str()),0); 
+      }
+      else{
+        cout<<"Recived from Socket: "<<buffer<<endl;
+        enqueueList(1,string(buffer));                   //Enqueing in the list
+        while(isEmptyList(2));
+        string reply;
+        reply=dequeueList(2);
+        send(new_socket,reply.c_str(),strlen(reply.c_str()),0); 
+      }
     }
 }
 

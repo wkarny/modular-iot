@@ -72,6 +72,7 @@ void loop(){
       radio.read(&m,sizeof(message));  //Accepting attach request
       if(m.type==ATH_REQ){
         wPipe=m.data.ath_req.wpipe;
+        NodeID=m.data.ath_req.nid;
         Serial.print("Got Pipe Address : ");
         //for(int i=4;i>=0;i--)
         Serial.println((int)wPipe);
@@ -97,6 +98,7 @@ void loop(){
       m.type=CRT_TP_REQ;
       m.data.crt_tp_req.t.type=TP_LED;
       m.data.crt_tp_req.nid=NodeID;
+      m.nid=NodeID;
       radio.stopListening();
       radio.write(&m,sizeof(message));
       radio.startListening();
@@ -127,6 +129,7 @@ void loop(){
         m.type=GET_TP_UP_REQ;
         m.data.get_tp_up_req.tid=p->t.tid;
         m.data.get_tp_up_req.nid=NodeID;
+        m.nid=NodeID;
         radio.stopListening();
         radio.write(&m,sizeof(message));
         radio.startListening();
