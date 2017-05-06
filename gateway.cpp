@@ -27,6 +27,7 @@ using namespace std;
 //#define MAIN_SERVER_PORT_NUM 8080
 #define PORT 5050
 
+void enqueueList(int,string);
 
 // struct topiclinkedlist 
 // {
@@ -121,7 +122,7 @@ bool TopicManager::putData(uint16_t tid, uint32_t data){
 
 void TopicManager::sendTopicListToServer(int req){
   for(auto it=tType.begin();it!=tType.end();++it){
-    uint16_t tid=it->frist;
+    uint16_t tid=it->first;
     uint8_t type=it->second;
     uint32_t data=tData[tid];
     string msg="GATR+"+to_string(tid)+"+"+to_string(type)+"+"+to_string(data)+"+"+to_string(req);
