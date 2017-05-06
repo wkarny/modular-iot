@@ -458,7 +458,7 @@ void nrf_thread(){
         // p->next->t.tid=++last_tid;
         // p->next->t.type=m.data.crt_tp_req.t.type;
         int temp_tid=0;
-        if(tp_man.addTopic(last_tid,m.data.crt_tp_req.t.type,m.nid)){     // Should optimize
+        if(tp_man.addTopic(last_tid+1,m.data.crt_tp_req.t.type,m.nid)){     // Should optimize
           temp_tid=last_tid+1;
           last_tid++;
           cout<<"New Topic Created"<<endl;
@@ -486,9 +486,9 @@ void nrf_thread(){
           m.type=GET_TP_UP_RES;
           m.data.get_tp_up_res.tdata=tp_man.getData(temp_tid);   //Should handle error
           if(sensorNetwork.sendMessage(nid,m))
-            cout<<"SUB_TP_RES : Sent"<<endl;
+            cout<<"GET_TP_UP_RES : Sent"<<endl;
           else
-            cout<<"SUB_TP_RES : Failed"<<endl;
+            cout<<"GET_TP_UP_RES : Failed"<<endl;
       }
   }
 

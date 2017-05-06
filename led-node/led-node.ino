@@ -97,7 +97,6 @@ void loop(){
       message m;
       m.type=CRT_TP_REQ;
       m.data.crt_tp_req.t.type=TP_LED;
-      m.data.crt_tp_req.nid=NodeID;
       m.nid=NodeID;
       radio.stopListening();
       radio.write(&m,sizeof(message));
@@ -128,7 +127,6 @@ void loop(){
         message m;
         m.type=GET_TP_UP_REQ;
         m.data.get_tp_up_req.tid=p->t.tid;
-        m.data.get_tp_up_req.nid=NodeID;
         m.nid=NodeID;
         radio.stopListening();
         radio.write(&m,sizeof(message));
