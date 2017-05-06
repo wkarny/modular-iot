@@ -245,12 +245,12 @@ void socket_thread(){
         perror("bind failed");
         exit(EXIT_FAILURE);
     }
-    if (listen(server_fd, 3) < 0)
-    {
-        perror("listen");
-        exit(EXIT_FAILURE);
-    }
     while(1){
+      if (listen(server_fd, 3) < 0)
+      {
+          perror("listen");
+          exit(EXIT_FAILURE);
+      }
       if ((new_socket = accept(server_fd, (struct sockaddr *)&address, 
                          (socklen_t*)&addrlen))<0)
       {
