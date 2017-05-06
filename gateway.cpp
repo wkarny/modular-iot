@@ -43,9 +43,9 @@ using namespace std;
 /* Topic manager class start */
 class TopicManager
 {
-  unordered_map<uint16_t,uint32_t> tData;
-  unordered_map<uint16_t,uint8_t> tType;
-  unordered_map<uint16_t,uint16_t> tNid;
+  unordered_map<uint16_t,uint32_t> tData;  // tid, tdata
+  unordered_map<uint16_t,uint8_t> tType;   // tid, ttype
+  unordered_map<uint16_t,uint16_t> tNid;   // tid, nid
 public:
   TopicManager(){};
   ~TopicManager(){};
@@ -55,6 +55,7 @@ public:
   uint8_t getType(uint16_t tid);
   bool putData(uint16_t tid, uint32_t data);
   uint16_t getNid(uint16_t tid);
+  void sendTopicListToServer(int req);
 };
 
 bool TopicManager::addTopic(uint16_t tid,uint8_t type,uint16_t nid){
@@ -115,6 +116,16 @@ bool TopicManager::putData(uint16_t tid, uint32_t data){
   }
   else{
     cout<<"putData : Failed, not found tid"<<endl;
+  }
+}
+
+void TopicManager::sendTopicListToServer(int req){
+  for(auto it=tType.begin();it!=tType.end();++it){
+    uint16_t tid=it->frist;
+    uint8_t type=it->second;
+    uint32_t data=tData[tid];
+    string msg="GATR+"+to_string(tid)+"+"+to_string(type)+"+"+to_string(data)+"+"+to_string(req);
+    enqueueList(2,msg);
   }
 }
 
@@ -205,9 +216,12 @@ void client_handle(int new_socket){
         
         enqueueList(1,string(buffer));                   //Enqueing in the list
         while(isEmptyList(2));
-        string reply;
-        reply=dequeueList(2);
-        send(new_socket,reply.c_str(),strlen(reply.c_str()),0); 
+        while(!isEmptyList(2)){
+          string reply;
+          reply=dequeueList(2);
+          send(new_socket,reply.c_str(),strlen(reply.c_str()),0); 
+          usleep(100000);
+        }
       }
     //}
       close(new_socket);
@@ -382,6 +396,9 @@ void nrf_thread(){
   MyRadio sensorNetwork(22,0);
   sensorNetwork.begin();
   while(1){
+
+    //Start of Servicing the Socket Server
+
     if(!isEmptyList(1)){   // For servicing Server Requests
       string str=dequeueList(1);
       char *cm;
@@ -439,11 +456,29 @@ void nrf_thread(){
             enqueueList(2,"PTUR+"+to_string(temp_tid)+"+NACK+"+to_string(temp_reqid));
         }
     }
+    else if(strcmp(cm,"GTUQ")==0){
+      // To be done
+    }
+    else if(strcmp(cm,"GATQ")==0){
+          cm=strtok(NULL,"+");
+          if(cm==NULL){
+            cout<<"Error is parsing : GATQ ReqID not found"<<endl;
+          }
+          else{
+            int req=atoi(cm);
+            tp_man.sendTopicListToServer(req);
+          }
+
+    }
     else{
       cout<<"Unrecognised Command"<<endl;
     }
   }
 
+  //End of Servicing the Socket Server
+
+
+  //Start of Servicing the sensor nodes
 
   if(sensorNetwork.available()){  // Servicing node requests
     message m;
@@ -491,6 +526,8 @@ void nrf_thread(){
             cout<<"GET_TP_UP_RES : Failed"<<endl;
       }
   }
+
+  //End of Servicing the sensor nodes
 
 }
 }

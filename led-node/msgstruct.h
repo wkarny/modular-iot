@@ -28,8 +28,8 @@
 
 //topic type
 #define TP_LED 0
-#define TP_TEMP 1
-#define TP_POWER_SWITCH 2
+#define TP_TEMP 101
+#define TP_POWER_SWITCH 102
 
 /**
     This code is for a sensor module connected to a gateway.
