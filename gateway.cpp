@@ -171,6 +171,45 @@ string dequeueList(int q){
   }
 }
 
+void client_handle(int new_socket){
+  char buffer[1024] = {0};
+  while(1){
+      memset(buffer,0,sizeof(buffer));
+      valread = read( new_socket , buffer, 1024);          //Waiting for Msg
+      cout<<"Recived from Socket: "<<buffer<<endl;
+      char *cm=strtok(buffer,"+");
+      if(strcmp(cm,"LOGIN")==0){
+        string rpl;
+        cm=strtok(NULL,"+");
+        if(strcmp(cm,"wyes")==0){
+          cm=strtok(NULL,"+");
+          if(strcmp(cm,"123456")==0){
+          cout<<"Login : Success"<<endl;
+          rpl="LOGIN+ACK";
+          }
+          else{
+          cout<<"Login : Denied"<<endl;
+          rpl="LOGIN+NACK";
+         }
+        }
+        else{
+          cout<<"Login : Denied"<<endl;
+          rpl="LOGIN+NACK";
+        }
+        send(new_socket,rpl.c_str(),strlen(rpl.c_str()),0); 
+      }
+      else{
+        
+        enqueueList(1,string(buffer));                   //Enqueing in the list
+        while(isEmptyList(2));
+        string reply;
+        reply=dequeueList(2);
+        send(new_socket,reply.c_str(),strlen(reply.c_str()),0); 
+      }
+    }
+
+}
+
 void socket_thread(){
 
     int server_fd, new_socket, valread;
@@ -211,49 +250,17 @@ void socket_thread(){
         exit(EXIT_FAILURE);
     }
     while(1){
-    if ((new_socket = accept(server_fd, (struct sockaddr *)&address, 
-                       (socklen_t*)&addrlen))<0)
-    {
-        perror("accept");
-        exit(EXIT_FAILURE);
+      if ((new_socket = accept(server_fd, (struct sockaddr *)&address, 
+                         (socklen_t*)&addrlen))<0)
+      {
+          perror("accept");
+          exit(EXIT_FAILURE);
+      }
+      thread client(&client_handle);
     }
     // valread = read( new_socket , buffer, 1024);
     // printf("Recived :%s\n",buffer );
-    while(1){
-      memset(buffer,0,sizeof(buffer));
-      valread = read( new_socket , buffer, 1024);          //Waiting for Msg
-      cout<<"Recived from Socket: "<<buffer<<endl;
-      char *cm=strtok(buffer,"+");
-      if(strcmp(cm,"LOGIN")==0){
-        string rpl;
-        cm=strtok(NULL,"+");
-        if(strcmp(cm,"wyes")==0){
-          cm=strtok(NULL,"+");
-          if(strcmp(cm,"123456")==0){
-          cout<<"Login : Success"<<endl;
-          rpl="LOGIN+ACK";
-          }
-          else{
-          cout<<"Login : Denied"<<endl;
-          rpl="LOGIN+NACK";
-         }
-        }
-        else{
-          cout<<"Login : Denied"<<endl;
-          rpl="LOGIN+NACK";
-        }
-        send(new_socket,rpl.c_str(),strlen(rpl.c_str()),0); 
-      }
-      else{
-        
-        enqueueList(1,string(buffer));                   //Enqueing in the list
-        while(isEmptyList(2));
-        string reply;
-        reply=dequeueList(2);
-        send(new_socket,reply.c_str(),strlen(reply.c_str()),0); 
-      }
-    }
-  }
+    
 }
 
 
