@@ -417,7 +417,7 @@ void nrf_thread(){
           //Send a NACK
         }
     }            //ADQ end
-    else if(strcmp(cm,"PTUR")==0){
+    else if(strcmp(cm,"PTUQ")==0){
         char* token[3];
         bool errorInToken=false;
         for(int i=0;i<3;i++){
