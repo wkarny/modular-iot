@@ -174,7 +174,7 @@ string dequeueList(int q){
 void client_handle(int new_socket){
   int valread;
   char buffer[1024] = {0};
-  while(1){
+  //while(1){
       memset(buffer,0,sizeof(buffer));
       valread = read( new_socket , buffer, 1024);          //Waiting for Msg
       cout<<"Recived from Socket: "<<buffer<<endl;
@@ -207,7 +207,8 @@ void client_handle(int new_socket){
         reply=dequeueList(2);
         send(new_socket,reply.c_str(),strlen(reply.c_str()),0); 
       }
-    }
+    //}
+      close(new_socket);
 
 }
 
@@ -242,23 +243,27 @@ void socket_thread(){
     if (bind(server_fd, (struct sockaddr *)&address, 
                                  sizeof(address))<0)
     {
+        cout<<"Socket Bind : Failed"<<endl;
         perror("bind failed");
         exit(EXIT_FAILURE);
     }
     while(1){
       if (listen(server_fd, 3) < 0)
       {
+          cout<<"Socket Listen : Failed"<<endl;
           perror("listen");
           exit(EXIT_FAILURE);
       }
       if ((new_socket = accept(server_fd, (struct sockaddr *)&address, 
                          (socklen_t*)&addrlen))<0)
       {
+          cout<<"Socket Accept : Failed"<<endl;
           perror("accept");
           exit(EXIT_FAILURE);
       }
       thread client(&client_handle,new_socket);
       client.join();
+
     }
     // valread = read( new_socket , buffer, 1024);
     // printf("Recived :%s\n",buffer );
