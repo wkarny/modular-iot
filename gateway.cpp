@@ -174,11 +174,13 @@ string dequeueList(int q){
 void client_handle(int new_socket){
   int valread;
   char buffer[1024] = {0};
+  char cp_buffer[1024]= {0};
   //while(1){
       memset(buffer,0,sizeof(buffer));
       valread = read( new_socket , buffer, 1024);          //Waiting for Msg
       cout<<"Recived from Socket: "<<buffer<<endl;
-      char *cm=strtok(buffer,"+");
+      strcpy(cp_buffer,buffer);
+      char *cm=strtok(cp_buffer,"+");
       if(strcmp(cm,"LOGIN")==0){
         string rpl;
         cm=strtok(NULL,"+");
