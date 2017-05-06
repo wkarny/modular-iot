@@ -258,6 +258,7 @@ void socket_thread(){
           exit(EXIT_FAILURE);
       }
       thread client(&client_handle,new_socket);
+      client.join();
     }
     // valread = read( new_socket , buffer, 1024);
     // printf("Recived :%s\n",buffer );
