@@ -172,6 +172,7 @@ string dequeueList(int q){
 }
 
 void client_handle(int new_socket){
+  int valread;
   char buffer[1024] = {0};
   while(1){
       memset(buffer,0,sizeof(buffer));
