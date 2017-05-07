@@ -126,6 +126,8 @@ void TopicManager::sendTopicListToServer(int req){
     uint8_t type=it->second;
     uint32_t data=tData[tid];
     string msg="GATR+"+to_string(tid)+"+"+to_string(type)+"+"+to_string(data)+"+"+to_string(req);
+    cout<<"Pushed into queue : ";
+    cout<<msg<<endl;
     enqueueList(2,msg);
   }
   enqueueList(2,"GATR+END+"+to_string(req));
