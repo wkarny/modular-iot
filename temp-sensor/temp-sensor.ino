@@ -103,8 +103,8 @@ void loop(){
         radio.stopListening();
         m.type=ATH_RES;
         m.data.ath_res.res=0xABAB;
-        while(radio.write(&m,sizeof(message)))
-           Serial.println("Sent Responce");
+        radio.write(&m,sizeof(message))
+        Serial.println("Sent Responce");
         radio.startListening();
         nodeMode=1;          //Setting to connected mode
         EEPROM.put(C_ADDRESS,'Y');
@@ -120,7 +120,7 @@ void loop(){
       m.data.crt_tp_req.t.type=TP_TEMP;
       m.nid=NodeID;
       radio.stopListening();
-      while(radio.write(&m,sizeof(message)));
+      radio.write(&m,sizeof(message));
       radio.startListening();
       Serial.println("CRT_TP_REQ : Sent");
       while(!radio.available()) Serial.println("Waiting for : CRT_TP_RES"); //waiting for responce
