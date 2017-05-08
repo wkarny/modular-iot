@@ -27,7 +27,7 @@
 
 
 //topic type
-#define TP_LED 0
+#define TP_LED 0    
 #define TP_TEMP 101
 #define TP_POWER_SWITCH 102
 
@@ -91,12 +91,18 @@ struct __attribute__((packed)) subscribe_topic_res
   Topic t;
 };
 
-struct __attribute__((packed)) publish_topic
+struct __attribute__((packed)) publish_topic_req
 {
   uint16_t tid;
-  uint16_t nid;
   uint32_t tdata;
 };
+
+struct __attribute__((packed)) publish_topic_res
+{
+  uint16_t tid;
+  uint8_t res;
+};
+
 
 struct __attribute__((packed)) get_topic_update_req{
   uint16_t tid;
@@ -124,6 +130,8 @@ typedef struct __attribute__((packed)) message_t
     struct get_topic_update_res get_tp_up_res;
     struct create_topic_req crt_tp_req;
     struct create_topic_res crt_tp_res;
+    struct publish_topic_req pub_tp_req;
+    struct publish_topic_res pub_tp_res;
 
   } data;
 } message;

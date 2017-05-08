@@ -7,6 +7,18 @@
 #define P_ADDRESS 1
 #define LED_PIN 5
 
+int tempPin = 1;
+
+
+float getTempValue(){
+	int val = analogRead(tempPin);
+	float mv = ( val/1024.0)*5000; 
+	float cel = mv/10;
+	//float farh = (cel*9)/5 + 32;
+	return(cel);
+}
+
+
 
 
 struct topiclinkedlist 
@@ -18,11 +30,11 @@ struct topiclinkedlist
 
 int nodeMode=0;
 
-struct topiclinkedlist *subscribe_list=NULL,*publish_list=NULL;  
+struct topiclinkedlist *publish_list=NULL,*publish_list=NULL;  
 // Lists for subscribe & publish topic
 
 int NodeID=0x00AA;
-uint64_t rPipe=86; //Address for the reading pipe
+uint64_t rPipe=93; //Address for the reading pipe
 uint64_t wPipe; //Address of writing pipe
 
 RF24 radio(9,10);  //Set as per your config
@@ -58,8 +70,8 @@ void setup(){
   Serial.println("Size of enum :");
   //Serial.println(sizeof(enum message_type));
 
-  subscribe_list=new topiclinkedlist;
-  subscribe_list->next=NULL;
+  publish_list=new topiclinkedlist;
+  publish_list->next=NULL;
   publish_list=new topiclinkedlist;
   publish_list->next=NULL;
 }
@@ -92,7 +104,7 @@ void loop(){
     }
   }
   else{                                   //nodeMode==1
-    if(subscribe_list->next==NULL){
+    if(publish_list->next==NULL){
       //Subscribe to a topic, Here the LED node requires only one topic
       message m;
       m.type=CRT_TP_REQ;
@@ -107,7 +119,7 @@ void loop(){
       if(m.type==CRT_TP_RES){
         Serial.println("CRT_TP_RES : Success");
         if(m.data.crt_tp_res.res==ACK){
-          topiclinkedlist *p=subscribe_list;
+          topiclinkedlist *p=publish_list;
           p->next=new topiclinkedlist;
           p->next->t.tid=m.data.crt_tp_res.t.tid;
           p->next->next=NULL;
@@ -123,40 +135,37 @@ void loop(){
 
     }
     else{
-      for(topiclinkedlist *p=subscribe_list->next;p!=NULL;p=p->next){
+      for(topiclinkedlist *p=publish_list->next;p!=NULL;p=p->next){
         message m;
-        m.type=GET_TP_UP_REQ;
-        m.data.get_tp_up_req.tid=p->t.tid;
+        m.type=PUB_TP_REQ;
+        m.data.pub_tp_req.tid=p->t.tid;
+        m.data.pub_tp_req.tdata=getTempValue();
         m.nid=NodeID;
         radio.stopListening();
         radio.write(&m,sizeof(message));
         radio.startListening();
-        Serial.println("GET_TP_UP_REQ : Sent");
+        Serial.println("PUB_TP_REQ : Sent");
         while(!radio.available());           //waiting for responce
         radio.read(&m,sizeof(message));      //reading responce
-        if(m.type==GET_TP_UP_RES){
-          Serial.println("GET_TP_UP_RES : Success");
-          int lastdata=m.data.get_tp_up_res.tdata;
-          Serial.print("GOT Data: ");
+        if(m.type==PUB_TP_RES){
+          Serial.println("PUB_TP_RES : Recived");
+          int lastdata=m.data.pub_tp_res.res;
+          Serial.print("GOT resp: ");
           Serial.println(lastdata);
-          if(lastdata==255)                  //the value 55 is used for on
-            digitalWrite(LED_PIN,HIGH);
-          else if(lastdata==0)             //the value 75 is used for off
-            digitalWrite(LED_PIN,LOW);
-          Serial.println("Dicition Taken");
         }
         else{
-        Serial.println("GET_TP_UP_RES : Failed");
+        Serial.println("PUB_TP_RES : Failed");
       }
       }
     }
-    if(publish_list==NULL){
-      //Create a publishing topic
-    }
+    // if(publish_list==NULL){
+    //   //Create a publishing topic
+    // }
 
   }
   delay(500);
 }
+
 
 
 

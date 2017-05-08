@@ -461,7 +461,29 @@ void nrf_thread(){
         }
     }
     else if(strcmp(cm,"GTUQ")==0){
-      // To be done
+        char* token[2];
+        bool errorInToken=false;
+        for(int i=0;i<2;i++){
+          cm=strtok(NULL,"+");
+          if(cm==NULL){
+            cout<<"Error is parsing : Not Enough Tokens"<<endl;
+            errorInToken=true;
+            break;
+          }
+          token[i]=cm;
+        }
+        if(!errorInToken){
+          int temp_tid=atoi(token[0]);
+          int temp_reqid=atoi(token[1]);
+          if(tp_man.find(temp_tid)){
+            enqueueList(2,"GTUR+"+to_string(temp_tid)+"+"+to_string(tp_man.getData(temp_tid))+"+"+to_string(temp_reqid));
+            cout<<"GTUR : Sent Successfully"<<endl;
+          }
+          else{
+            enqueueList(2,"GTUR+"+to_string(temp_tid)+"+NACK+"+to_string(temp_reqid));
+            cout<<"GTUR : TID mismatch : "+to_string(temp_tid)<<endl;
+          }
+        }
     }
     else if(strcmp(cm,"GATQ")==0){
           cm=strtok(NULL,"+");
@@ -528,6 +550,22 @@ void nrf_thread(){
             cout<<"GET_TP_UP_RES : Sent"<<endl;
           else
             cout<<"GET_TP_UP_RES : Failed"<<endl;
+      }
+      else if(m.type==PUB_TP_REQ){
+          int temp_tid=m.data.pub_tp_req.tid;
+          int temp_data=m.data.pub_tp_req.tdata;
+          uint8_t resp=NACK;
+          if(tp_man.find(temp_tid)){
+            tp_man.putData(temp_tid,temp_data);
+            resp=ACK;
+          }
+          m.type=PUB_TP_RES;
+          m.data.pub_tp_res.tid=temp_tid;
+          m.data.pub_tp_res.res=resp;
+          if(sensorNetwork.sendMessage(nid,m))
+            cout<<"PUB_TP_RES : Sent"<<endl;
+          else
+            cout<<"PUB_TP_RES : Failed"<<endl;
       }
   }
 
