@@ -317,16 +317,16 @@ public:
 
 MyRadio::MyRadio(int ce_pin,int cs_pin){
   radio=new RF24(ce_pin,cs_pin);
-  //for errors
-  radio->setRetries(15, 15);
-  radio->enableAckPayload();
-  //for errors
   last_pipe=0xAA11223344LL;                   //Should be read from File
   last_nid=100;
   last_pipe_num=0;
 }
 void MyRadio::begin(){
   radio->begin();
+  //for errors
+  radio->setRetries(15, 15);
+  radio->enableAckPayload();
+  //for errors
 }
 
 void MyRadio::increaseNode(uint64_t pipe){
