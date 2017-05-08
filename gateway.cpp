@@ -351,10 +351,8 @@ int MyRadio::attachNode(uint64_t pipe){
     m.data.ath_req.nid=last_nid+1;
     m.data.ath_req.rpipe=0;
     m.data.ath_req.wpipe=last_pipe+1;
-    while(radio->write(&m,sizeof(message))){
-      cout<<"Sent the address"<<endl;
-      usleep(100000);
-    }
+    radio->write(&m,sizeof(message))
+    cout<<"Sent the address"<<endl;
     radio->startListening();
     uint8_t pipe_num=0;
     while(pipe_num!=last_pipe_num+1)
