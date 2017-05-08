@@ -32,9 +32,16 @@ void setup(){
     pinMode(LED_PIN,OUTPUT);
   //Led Setup
 
+
   radio.begin();
   Serial.begin(115200);
-  radio.setPALevel(RF24_PA_LOW);
+  //radio.setPALevel(RF24_PA_LOW);
+  //for errors
+  radio.setRetries(15, 15);
+  radio.enableAckPayload();
+  //for errors
+
+
   char flag='N';
   //
   EEPROM.put(C_ADDRESS,'N');
@@ -48,6 +55,7 @@ void setup(){
     Serial.println("Got wPipe");
     radio.openReadingPipe(1,rPipe);
     radio.openWritingPipe(wPipe);
+    radio.setAutoAck(true);
   }
   else{
     nodeMode=0;
@@ -78,6 +86,7 @@ void loop(){
         Serial.println((int)wPipe);
         Serial.println();
         radio.openWritingPipe(wPipe);
+        radio.setAutoAck(true);
         Serial.println("Opened Writing Pipe");
         radio.stopListening();
         m.type=ATH_RES;

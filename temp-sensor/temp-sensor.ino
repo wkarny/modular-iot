@@ -46,8 +46,14 @@ void setup(){
   //Led Setup
 
   radio.begin();
+
+  //for errors
+  radio.setRetries(15, 15);
+  radio.enableAckPayload();
+  //for errors
+
   Serial.begin(115200);
-  radio.setPALevel(RF24_PA_LOW);
+  //radio.setPALevel(RF24_PA_LOW);
   char flag='N';
   //
   EEPROM.put(C_ADDRESS,'N');
@@ -61,6 +67,7 @@ void setup(){
     Serial.println("Got wPipe");
     radio.openReadingPipe(1,rPipe);
     radio.openWritingPipe(wPipe);
+    radio.setAutoAck(true);
   }
   else{
     nodeMode=0;
@@ -91,6 +98,7 @@ void loop(){
         Serial.println((int)wPipe);
         Serial.println();
         radio.openWritingPipe(wPipe);
+        radio.setAutoAck(true);
         Serial.println("Opened Writing Pipe");
         radio.stopListening();
         m.type=ATH_RES;
@@ -112,7 +120,7 @@ void loop(){
       m.data.crt_tp_req.t.type=TP_TEMP;
       m.nid=NodeID;
       radio.stopListening();
-      radio.write(&m,sizeof(message));
+      while(radio.write(&m,sizeof(message)));
       radio.startListening();
       Serial.println("CRT_TP_REQ : Sent");
       while(!radio.available()) Serial.println("Waiting for : CRT_TP_RES"); //waiting for responce

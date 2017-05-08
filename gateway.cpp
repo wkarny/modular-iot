@@ -317,6 +317,10 @@ public:
 
 MyRadio::MyRadio(int ce_pin,int cs_pin){
   radio=new RF24(ce_pin,cs_pin);
+  //for errors
+  radio->setRetries(15, 15);
+  radio->enableAckPayload();
+  //for errors
   last_pipe=0xAA11223344LL;                   //Should be read from File
   last_nid=100;
   last_pipe_num=0;
@@ -341,6 +345,7 @@ int MyRadio::attachNode(uint64_t pipe){
   }
   else{
     radio->openWritingPipe(pipe);
+    radio.setAutoAck(true);
     cout<<"Opened Writing Pipe"<<endl;
     radio->openReadingPipe(last_pipe_num+1,last_pipe+1);
     cout<<"Opened Reading Pipe"<<endl;
@@ -378,6 +383,7 @@ int MyRadio::sendMessage(uint16_t nid,message m){
   else{
     radio->stopListening();
     radio->openWritingPipe(writing_list[nid]);
+    radio.setAutoAck(true);
     radio->write(&m,sizeof(m));             // Should handle if unable to send
     radio->startListening();
     return 1;
