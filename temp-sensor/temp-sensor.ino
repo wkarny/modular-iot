@@ -30,7 +30,8 @@ struct topiclinkedlist
 
 int nodeMode=0;
 
-struct topiclinkedlist *publish_list=NULL,*publish_list=NULL;  
+struct topiclinkedlist *publish_list=NULL;
+// *publish_list=NULL;  
 // Lists for subscribe & publish topic
 
 int NodeID=0x00AA;
@@ -94,8 +95,8 @@ void loop(){
         radio.stopListening();
         m.type=ATH_RES;
         m.data.ath_res.res=0xABAB;
-        radio.write(&m,sizeof(message));
-        Serial.println("Sent Responce");
+        while(radio.write(&m,sizeof(message)))
+           Serial.println("Sent Responce");
         radio.startListening();
         nodeMode=1;          //Setting to connected mode
         EEPROM.put(C_ADDRESS,'Y');
@@ -108,7 +109,7 @@ void loop(){
       //Subscribe to a topic, Here the LED node requires only one topic
       message m;
       m.type=CRT_TP_REQ;
-      m.data.crt_tp_req.t.type=TP_LED;
+      m.data.crt_tp_req.t.type=TP_TEMP;
       m.nid=NodeID;
       radio.stopListening();
       radio.write(&m,sizeof(message));
