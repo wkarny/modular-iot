@@ -49,7 +49,6 @@ void setup(){
 
   //for errors
   radio.setRetries(15, 15);
-  radio.enableAckPayload();
   //for errors
 
   Serial.begin(115200);
@@ -67,7 +66,7 @@ void setup(){
     Serial.println("Got wPipe");
     radio.openReadingPipe(1,rPipe);
     radio.openWritingPipe(wPipe);
-    radio.setAutoAck(true);
+    //radio.setAutoAck(true);
   }
   else{
     nodeMode=0;
@@ -98,12 +97,12 @@ void loop(){
         Serial.println((int)wPipe);
         Serial.println();
         radio.openWritingPipe(wPipe);
-        radio.setAutoAck(true);
+        //radio.setAutoAck(true);
         Serial.println("Opened Writing Pipe");
         radio.stopListening();
         m.type=ATH_RES;
         m.data.ath_res.res=0xABAB;
-        radio.write(&m,sizeof(message))
+        radio.write(&m,sizeof(message));
         Serial.println("Sent Responce");
         radio.startListening();
         nodeMode=1;          //Setting to connected mode
