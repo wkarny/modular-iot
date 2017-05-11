@@ -47,6 +47,7 @@ class TopicManager
   unordered_map<uint16_t,uint32_t> tData;  // tid, tdata
   unordered_map<uint16_t,uint8_t> tType;   // tid, ttype
   unordered_map<uint16_t,uint16_t> tNid;   // tid, nid
+  unordered_map<uint8_t,uint16_t> t_list;  // ttype, tid
 public:
   TopicManager(){};
   ~TopicManager(){};
@@ -57,6 +58,7 @@ public:
   bool putData(uint16_t tid, uint32_t data);
   uint16_t getNid(uint16_t tid);
   void sendTopicListToServer(int req);
+  bool isTopicExists(uint8_t type);
 };
 
 bool TopicManager::addTopic(uint16_t tid,uint8_t type,uint16_t nid){
@@ -68,6 +70,16 @@ bool TopicManager::addTopic(uint16_t tid,uint8_t type,uint16_t nid){
     tData[tid]=0;
     tType[tid]=type;
     tNid[tid]=nid;
+    t_list[type]=tid;
+    return true;
+  }
+}
+
+bool TopicManager::isTopicExists(uint8_t type){
+  if(t_list.find(type)==t_list.end()){
+    return false;
+  }
+  else{
     return true;
   }
 }
@@ -567,13 +579,18 @@ void nrf_thread(){
         // p->next->t.tid=++last_tid;
         // p->next->t.type=m.data.crt_tp_req.t.type;
         int temp_tid=0;
-        if(tp_man.addTopic(last_tid+1,m.data.crt_tp_req.t.type,m.nid)){     // Should optimize
-          temp_tid=last_tid+1;
-          last_tid++;
-          cout<<"New Topic Created"<<endl;
+        if(tp_man.isTopicExists(m.data.crt_tp_req.t.type)){
+          cout<<".."<<endl;
         }
         else{
-          cout<<"New Topic Create : Failed"<<endl;
+          if(tp_man.addTopic(last_tid+1,m.data.crt_tp_req.t.type,m.nid)){     // Should optimize
+            temp_tid=last_tid+1;
+            last_tid++;
+            cout<<"New Topic Created"<<endl;
+          }
+          else{
+            cout<<"New Topic Create : Failed"<<endl;
+          }
         }
     
         m.type=CRT_TP_RES;
