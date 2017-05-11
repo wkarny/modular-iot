@@ -371,10 +371,11 @@ int MyRadio::attachNode(uint64_t pipe){
     m.data.ath_req.rpipe=0;
     m.data.ath_req.wpipe=last_pipe+1;
     bool sending_status=false;
-    while(!sending_status){
+    //while(!sending_status){
+    for(int try_count=0;(try_cout<10)&&(!sending_status);try_cout++){
       sending_status=radio->write(&m,sizeof(message));
       cout<<"ATH_REQ: Sending"<<endl;
-      sleep(1);
+      usleep(200000);
     }
     cout<<"Sent the address"<<endl;
     radio->startListening();
@@ -404,9 +405,10 @@ int MyRadio::sendMessage(uint16_t nid,message m){
     radio->openWritingPipe(writing_list[nid]);
     //radio->setAutoAck(true);
     bool sending_status=false;
-    while(!sending_status){
+    //while(!sending_status){
+    for(int try_count=0;(try_cout<10)&&(!sending_status);try_cout++){
         sending_status=radio->write(&m,sizeof(m));             // Should handle if unable to send
-        sleep(1);
+        usleep(200000);
     }
     radio->startListening();
     return 1;
@@ -550,8 +552,8 @@ void nrf_thread(){
   //End of Servicing the Socket Server
 
   //Start of Servicing the sensor nodes
-  sensorNetwork.startListening();
-  for(int time_count=0;time_count<1000;time_count++){
+  //sensorNetwork.startListening();
+  //for(int time_count=0;time_count<1000;time_count++){
   if(sensorNetwork.available()){  // Servicing node requests
     message m;
     int nid=sensorNetwork.read(&m);
@@ -615,8 +617,8 @@ void nrf_thread(){
       }
   }
 
-   }
-   sensorNetwork.stopListening();
+   //}
+   //sensorNetwork.stopListening();
   //End of Servicing the sensor nodes
 
   }
