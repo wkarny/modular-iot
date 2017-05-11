@@ -412,13 +412,32 @@ uint16_t MyRadio::read(message* m){
   return(m->nid);
 }
 
-TopicManager tp_man;
-MyRadio sensorNetwork(22,0);
 
-void nrf_thread_for_sock_ser(){
+
+// void nrf_thread_for_sock_ser(){
+//   while(true){
+
+    
+
+//   }
+// }
+
+// void nrf_thread_for_sensor_nodes(){
+//   while(true){
+    
+//   }
+// }
+
+void nrf_thread(){
+  // TopicList=new topiclinkedlist;
+  // TopicList->next=NULL;
+  TopicManager tp_man;
+  MyRadio sensorNetwork(22,0);
+  sensorNetwork.begin();
+
   while(true){
 
-    //Start of Servicing the Socket Server
+   //Start of Servicing the Socket Server
 
     if(!isEmptyList(1)){   // For servicing Server Requests
       string str=dequeueList(1);
@@ -520,13 +539,8 @@ void nrf_thread_for_sock_ser(){
 
   //End of Servicing the Socket Server
 
-  }
-}
-
-void nrf_thread_for_sensor_nodes(){
-  while(true){
-    //Start of Servicing the sensor nodes
-
+  //Start of Servicing the sensor nodes
+  for(int time_count=0;time_count<1000;time_count++){
   if(sensorNetwork.available()){  // Servicing node requests
     message m;
     int nid=sensorNetwork.read(&m);
@@ -590,19 +604,14 @@ void nrf_thread_for_sensor_nodes(){
       }
   }
 
+   }
   //End of Servicing the sensor nodes
-  }
-}
 
-void nrf_thread(){
-  // TopicList=new topiclinkedlist;
-  // TopicList->next=NULL;
-  
-  sensorNetwork.begin();
-  thread nrf_thread_1(&nrf_thread_for_sock_ser);
-  thread nrf_thread_2(&nrf_thread_for_sensor_nodes);
-  nrf_thread_1.join();
-  nrf_thread_2.join();
+  }
+  // thread nrf_thread_1(&nrf_thread_for_sock_ser);
+  // thread nrf_thread_2(&nrf_thread_for_sensor_nodes);
+  // nrf_thread_1.join();
+  // nrf_thread_2.join();
 }
 
 int main(int argc,char *argv[]){
