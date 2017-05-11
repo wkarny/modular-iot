@@ -108,7 +108,8 @@ void loop(){
         m.data.ath_res.res=0xABAB;
         bool sending_status=false;
         while(!sending_status){
-            radio.write(&m,sizeof(message));
+        //for(int try_count=0;try_cout<10;try_cout++){
+            sending_status=radio.write(&m,sizeof(message));
             Serial.println("Sending ATH_RES");
             delay(1000);
         }
@@ -130,7 +131,7 @@ void loop(){
       radio.stopListening();
       bool sending_status=false;
       while(!sending_status){
-          radio.write(&m,sizeof(message));
+          sending_status=radio.write(&m,sizeof(message));
           Serial.println("Sending CRT_TP_REQ");
           delay(1000);
       }
@@ -166,7 +167,7 @@ void loop(){
         radio.stopListening();
         bool sending_status=false;
         while(!sending_status){
-          radio.write(&m,sizeof(message));
+          sending_status=radio.write(&m,sizeof(message));
           Serial.println("Sending PUB_TP_REQ");
           delay(1000);
         }
