@@ -312,6 +312,8 @@ public:
   int sendMessage(uint16_t nid, message m);
   bool available();
   uint16_t read(message *m);
+  void startListening();
+  void stopListening();
   /* data */
 };
 
@@ -320,6 +322,14 @@ MyRadio::MyRadio(int ce_pin,int cs_pin){
   last_pipe=0xAA11223344LL;                   //Should be read from File
   last_nid=100;
   last_pipe_num=0;
+}
+
+void MyRadio::startListening(){
+  radio->startListening();
+}
+
+void MyRadio::stopListening(){
+  radio->stopListening();
 }
 void MyRadio::begin(){
   radio->begin();
@@ -540,6 +550,7 @@ void nrf_thread(){
   //End of Servicing the Socket Server
 
   //Start of Servicing the sensor nodes
+  sensorNetwork.startListening();
   for(int time_count=0;time_count<1000;time_count++){
   if(sensorNetwork.available()){  // Servicing node requests
     message m;
@@ -605,6 +616,7 @@ void nrf_thread(){
   }
 
    }
+   sensorNetwork.stopListening();
   //End of Servicing the sensor nodes
 
   }

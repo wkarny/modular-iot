@@ -49,7 +49,7 @@ void setup(){
 
   //for errors
   radio.setDataRate(RF24_250KBPS); 
-  radio.setPALevel(RF24_PA_MAX); 
+  radio.setPALevel(RF24_PA_LOW); 
   radio.setChannel(108);
   radio.enableDynamicPayloads();
   radio.setRetries(15, 15);
