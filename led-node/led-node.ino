@@ -97,7 +97,7 @@ void loop(){
         m.data.ath_res.res=0xABAB;
         bool sending_status=false;
         //while(!sending_status){
-        for(int try_count=0;(try_cout<10)&&(!sending_status);try_cout++){
+        for(int try_count=0;(try_count<10)&&(!sending_status);try_count++){
             sending_status=radio.write(&m,sizeof(message));
             Serial.println("Sending ATH_RES");
             delay(1000);
@@ -120,7 +120,7 @@ void loop(){
       radio.stopListening();
       bool sending_status=false;
       //while(!sending_status){
-      for(int try_count=0;(try_cout<10)&&(!sending_status);try_cout++){
+      for(int try_count=0;(try_count<10)&&(!sending_status);try_count++){
           sending_status=radio.write(&m,sizeof(message));
           Serial.println("Sending CRT_TP_REQ");
           delay(1000);
@@ -156,7 +156,7 @@ void loop(){
         radio.stopListening();
         bool sending_status=false;
         //while(!sending_status){
-        for(int try_count=0;(try_cout<10)&&(!sending_status);try_cout++){
+        for(int try_count=0;(try_count<10)&&(!sending_status);try_count++){
             sending_status=radio.write(&m,sizeof(message));
             Serial.println("Sending GET_TP_UP_RES");
             delay(1000);

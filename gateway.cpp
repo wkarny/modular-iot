@@ -372,7 +372,7 @@ int MyRadio::attachNode(uint64_t pipe){
     m.data.ath_req.wpipe=last_pipe+1;
     bool sending_status=false;
     //while(!sending_status){
-    for(int try_count=0;(try_cout<10)&&(!sending_status);try_cout++){
+    for(int try_count=0;(try_count<10)&&(!sending_status);try_count++){
       sending_status=radio->write(&m,sizeof(message));
       cout<<"ATH_REQ: Sending"<<endl;
       usleep(200000);
@@ -406,7 +406,7 @@ int MyRadio::sendMessage(uint16_t nid,message m){
     //radio->setAutoAck(true);
     bool sending_status=false;
     //while(!sending_status){
-    for(int try_count=0;(try_cout<10)&&(!sending_status);try_cout++){
+    for(int try_count=0;(try_count<10)&&(!sending_status);try_count++){
         sending_status=radio->write(&m,sizeof(m));             // Should handle if unable to send
         usleep(200000);
     }
