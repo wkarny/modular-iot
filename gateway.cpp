@@ -324,7 +324,10 @@ MyRadio::MyRadio(int ce_pin,int cs_pin){
 void MyRadio::begin(){
   radio->begin();
   //for errors
+  radio->setDataRate(RF24_250KBPS); 
+  radio->setPALevel(RF24_PA_MAX); 
   radio->setChannel(108);
+  radio->enableDynamicPayloads();
   radio->setRetries(15, 15);
   //radio->enableAckPayload();
   //for errors
