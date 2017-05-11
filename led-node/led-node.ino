@@ -37,8 +37,9 @@ void setup(){
   Serial.begin(115200);
   //radio.setPALevel(RF24_PA_LOW);
   //for errors
+  radio.setChannel(108);
   radio.setRetries(15, 15);
-  radio.enableAckPayload();
+  //radio.enableAckPayload();
   //for errors
 
 
@@ -55,7 +56,7 @@ void setup(){
     Serial.println("Got wPipe");
     radio.openReadingPipe(1,rPipe);
     radio.openWritingPipe(wPipe);
-    radio.setAutoAck(true);
+    //radio.setAutoAck(true);
   }
   else{
     nodeMode=0;
@@ -86,12 +87,17 @@ void loop(){
         Serial.println((int)wPipe);
         Serial.println();
         radio.openWritingPipe(wPipe);
-        radio.setAutoAck(true);
+        //radio.setAutoAck(true);
         Serial.println("Opened Writing Pipe");
         radio.stopListening();
         m.type=ATH_RES;
         m.data.ath_res.res=0xABAB;
-        radio.write(&m,sizeof(message));
+        bool sending_status=false;
+        while(!sending_status){
+            radio.write(&m,sizeof(message));
+            Serial.println("Sending ATH_RES");
+            delay(1000);
+        }
         Serial.println("Sent Responce");
         radio.startListening();
         nodeMode=1;          //Setting to connected mode
@@ -108,7 +114,12 @@ void loop(){
       m.data.crt_tp_req.t.type=TP_LED;
       m.nid=NodeID;
       radio.stopListening();
-      radio.write(&m,sizeof(message));
+      bool sending_status=false;
+      while(!sending_status){
+          radio.write(&m,sizeof(message));
+          Serial.println("Sending CRT_TP_REQ");
+          delay(1000);
+      }
       radio.startListening();
       Serial.println("CRT_TP_REQ : Sent");
       while(!radio.available()) Serial.println("Waiting for : CRT_TP_RES"); //waiting for responce
@@ -138,10 +149,15 @@ void loop(){
         m.data.get_tp_up_req.tid=p->t.tid;
         m.nid=NodeID;
         radio.stopListening();
-        radio.write(&m,sizeof(message));
+        bool sending_status=false;
+        while(!sending_status){
+            radio.write(&m,sizeof(message));
+            Serial.println("Sending GET_TP_UP_RES");
+            delay(1000);
+        }
         radio.startListening();
         Serial.println("GET_TP_UP_REQ : Sent");
-        while(!radio.available());           //waiting for responce
+        if(radio.available()){           //waiting for responce
         radio.read(&m,sizeof(message));      //reading responce
         if(m.type==GET_TP_UP_RES){
           Serial.println("GET_TP_UP_RES : Success");
@@ -154,6 +170,9 @@ void loop(){
             digitalWrite(LED_PIN,LOW);
           Serial.println("Dicition Taken");
         }
+        else
+          Serial.println("GET_TP_UP_RES : Failed");
+       }
         else{
         Serial.println("GET_TP_UP_RES : Failed");
       }

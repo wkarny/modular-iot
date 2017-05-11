@@ -48,6 +48,7 @@ void setup(){
   radio.begin();
 
   //for errors
+  radio.setChannel(108);
   radio.setRetries(15, 15);
   //for errors
 
@@ -102,7 +103,12 @@ void loop(){
         radio.stopListening();
         m.type=ATH_RES;
         m.data.ath_res.res=0xABAB;
-        radio.write(&m,sizeof(message));
+        bool sending_status=false;
+        while(!sending_status){
+            radio.write(&m,sizeof(message));
+            Serial.println("Sending ATH_RES");
+            delay(1000);
+        }
         Serial.println("Sent Responce");
         radio.startListening();
         nodeMode=1;          //Setting to connected mode
@@ -119,7 +125,12 @@ void loop(){
       m.data.crt_tp_req.t.type=TP_TEMP;
       m.nid=NodeID;
       radio.stopListening();
-      radio.write(&m,sizeof(message));
+      bool sending_status=false;
+      while(!sending_status){
+          radio.write(&m,sizeof(message));
+          Serial.println("Sending CRT_TP_REQ");
+          delay(1000);
+      }
       radio.startListening();
       Serial.println("CRT_TP_REQ : Sent");
       while(!radio.available()) Serial.println("Waiting for : CRT_TP_RES"); //waiting for responce
@@ -150,7 +161,12 @@ void loop(){
         m.data.pub_tp_req.tdata=getTempValue();
         m.nid=NodeID;
         radio.stopListening();
-        radio.write(&m,sizeof(message));
+        bool sending_status=false;
+        while(!sending_status){
+          radio.write(&m,sizeof(message));
+          Serial.println("Sending PUB_TP_REQ");
+          delay(1000);
+        }
         radio.startListening();
         Serial.println("PUB_TP_REQ : Sent");
         while(!radio.available());           //waiting for responce

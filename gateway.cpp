@@ -324,6 +324,7 @@ MyRadio::MyRadio(int ce_pin,int cs_pin){
 void MyRadio::begin(){
   radio->begin();
   //for errors
+  radio->setChannel(108);
   radio->setRetries(15, 15);
   //radio->enableAckPayload();
   //for errors
@@ -356,7 +357,12 @@ int MyRadio::attachNode(uint64_t pipe){
     m.data.ath_req.nid=last_nid+1;
     m.data.ath_req.rpipe=0;
     m.data.ath_req.wpipe=last_pipe+1;
-    radio->write(&m,sizeof(message));
+    bool sending_status=false;
+    while(!sending_status){
+      sending_status=radio->write(&m,sizeof(message));
+      cout<<"ATH_REQ: Sending"<<endl;
+      sleep(1);
+    }
     cout<<"Sent the address"<<endl;
     radio->startListening();
     uint8_t pipe_num=0;
@@ -384,7 +390,11 @@ int MyRadio::sendMessage(uint16_t nid,message m){
     radio->stopListening();
     radio->openWritingPipe(writing_list[nid]);
     //radio->setAutoAck(true);
-    radio->write(&m,sizeof(m));             // Should handle if unable to send
+    bool sending_status=false;
+    while(!sending_status){
+        sending_status=radio->write(&m,sizeof(m));             // Should handle if unable to send
+        sleep(1);
+    }
     radio->startListening();
     return 1;
   }
@@ -559,7 +569,7 @@ void nrf_thread(){
       }
       else if(m.type==PUB_TP_REQ){
           int temp_tid=m.data.pub_tp_req.tid;
-          int temp_data=m.data.pub_tp_req.tdata;
+          uint32_t temp_data=m.data.pub_tp_req.tdata;
           uint8_t resp=NACK;
           if(tp_man.find(temp_tid)){
             tp_man.putData(temp_tid,temp_data);
